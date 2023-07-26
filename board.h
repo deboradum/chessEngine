@@ -1,4 +1,5 @@
 #pragma once
+#include "fen.h"
 #include <_ctype.h>
 #include <cctype>
 #include <iostream>
@@ -19,16 +20,21 @@ namespace board {
                                                {bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}},
                                                {bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}},
                                                {bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}}};
+        string activeColor;
+        string castlingRights;
+        string enPassantTargets;
+        int halfMoves;
+        int fullMoves;
         vector<string> movesMade = {};
 
         // Constructor.
-        Board(string startPosFen, vector<string> moves);
+        Board(fen f);
         // Prints board to stdout.
         void printBoard();
     
     private:
         // Sets up board.
-        void setupBoard(vector<string> fen);
+        void setupBoard(fen f);
         // Makes a move on the board.
         void makeMove(string move);
     };

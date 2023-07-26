@@ -1,4 +1,6 @@
 #include "board.h"
+#include "fen.h"
+#include "helperFunctions.h"
 
 #include <_ctype.h>
 #include <cctype>
@@ -36,11 +38,12 @@ int main()
                 // cout << "NEW GAME COMMAND RECEIVED" << endl;
             }
             if (msg.rfind("position", 0) == 0) {
-                // cout << "POSTION COMMAND RECEIVED" << endl;
+                fen f = parsePosition(msg);
+                board::Board b(f);
+                b.printBoard();
             }
             if (msg.rfind("go", 0) == 0) {
                 vector<string> tmpVec = {"f2f3"};
-                board::Board b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", {"f2f3"});
                 cout << "bestmove g1f3 ponder b8c6" << endl;
             }
             else {

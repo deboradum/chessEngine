@@ -1,4 +1,5 @@
 #include "board.h"
+#include "fen.h"
 #include "helperFunctions.h"
 #include "piece.h"
 #include <_ctype.h>
@@ -11,9 +12,9 @@
 using namespace std;
 using namespace board;
 
-Board::Board(string startPosFen, vector<string> moves) {
-    setupBoard(convertFen(startPosFen));
-    for (string move : moves) {
+Board::Board(fen f) {
+    setupBoard(f);
+    for (string move : f.movesMade) {
         makeMove(move);
         movesMade.push_back(move);
     }
@@ -26,12 +27,24 @@ void Board::printBoard() {
         }
         cout << "\n";
     }
+    cout << "Active color: " << activeColor << endl
+         << "Castling rights: " << castlingRights << endl
+         << "En Passant targets: " << enPassantTargets << endl
+         << "Number of half moves: " << halfMoves << endl
+         << "Number of full moves: " << fullMoves << endl;
 }
 
-void Board::setupBoard(vector<string> fen) {
+void Board::setupBoard(fen f) {
+    activeColor = f.activeColor;
+    castlingRights = f.castlingRights;
+    enPassantTargets = f.enPassantTargets;
+    fullMoves = f.fullMoves;
+    halfMoves = f.halfMoves;
+
+    vector<string> fenPP = convertFen(f.piecePlacement);
     piece::Piece Piece;
     int rank = 0;
-    for (string line : fen) {
+    for (string line : fenPP) {
         int file = 0;
         for (char& c : line) {
             if (isdigit(c)) {
