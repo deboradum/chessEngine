@@ -43,6 +43,8 @@ struct moveStruct {
     string endSquare;
 };
 
+moveStruct createMoveStruct(int beginRank, int beginFile, int endRank, int endFile);
+
 string moveStructToMoveString(moveStruct m);
 
 void printMoveList(vector< moveStruct > moveList);

@@ -216,3 +216,11 @@ void printMoveList(vector< moveStruct > moveList) {
         cout << m.startSquare << m.endSquare << " ";
     }
 }
+
+moveStruct createMoveStruct(int beginRank, int beginFile, int endRank, int endFile) {
+    moveStruct m;
+    m.startSquare = indexToPosition(beginRank, beginFile);
+    m.endSquare = indexToPosition(endRank, endFile);
+
+    return m;
+}

@@ -39,6 +39,7 @@ namespace board {
 
         vector< moveStruct > generateMoves();
 
+        vector< moveStruct > generateKingMoves(int rank, int file);
         vector< moveStruct > generateQueenMoves(int rank, int file);
         vector< moveStruct > generateRookMoves(int rank, int file);
         vector< moveStruct > generateBishopMoves(int rank, int file);
