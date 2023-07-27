@@ -31,7 +31,13 @@ void Board::printBoard() {
          << "Castling rights: " << castlingRights << endl
          << "En Passant targets: " << enPassantTargets << endl
          << "Number of half moves: " << halfMoves << endl
-         << "Number of full moves: " << fullMoves << endl;
+         << "Number of full moves: " << fullMoves << endl
+         << "Moves made: ";
+    
+    for (string el : movesMade) {
+        cout << el << " ";
+    };
+    cout << endl;
 }
 
 void Board::setupBoard(fen f) {
