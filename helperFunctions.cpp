@@ -105,3 +105,34 @@ void setPiece(int rank, int file, char pieceChar, vector< vector<bitset<5> > > &
 
     return;
 }
+
+int positionRank(string squarePos) {
+    assert (squarePos.length() == 2);
+    int rank = squarePos[1] - '0';
+
+    return 8-rank;
+}
+
+int positionFile(string squarePos) {
+    assert (squarePos.length() == 2);
+    switch (squarePos[0]) {
+    case 'a':
+        return 0;
+    case 'b':
+        return 1;
+    case 'c':
+        return 2;
+    case 'd':
+        return 3;
+    case 'e':
+        return 4;
+    case 'f':
+        return 5;
+    case 'g':
+        return 6;
+    case 'h':
+        return 7;
+    default:
+        return -1;
+    }
+}

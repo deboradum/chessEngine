@@ -2,6 +2,7 @@
 #include "fen.h"
 #include "helperFunctions.h"
 #include "piece.h"
+#include "constants.h"
 #include <_ctype.h>
 #include <cctype>
 #include <iostream>
@@ -47,13 +48,12 @@ void Board::setupBoard(fen f) {
     fullMoves = f.fullMoves;
     halfMoves = f.halfMoves;
 
-    vector<string> fenPP = convertFen(f.piecePlacement);
     int rank = 0;
-    for (string line : fenPP) {
+    for (string line : convertFen(f.piecePlacement)) {
         int file = 0;
         for (char& c : line) {
             if (isdigit(c)) {
-                file += int(c)-48;
+                file += int(c)-'0';
                 continue;
             }
             setPiece(rank, file, c, square);
@@ -64,6 +64,12 @@ void Board::setupBoard(fen f) {
 }
 
 void Board::makeMove(string move) {
+    assert(move.length() == 4);
+    string start = move.substr(0, 2);
+    string end = move.substr(2, 4);
+
+    square[positionRank(end)][positionFile(end)] = square[positionRank(start)][positionFile(start)];
+    square[positionRank(start)][positionFile(start)] = EMPTY_SQUARE;
 
     return;
 }
