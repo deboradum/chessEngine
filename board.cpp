@@ -100,7 +100,8 @@ vector< moveStruct > Board::generateMoves() {
             } else if (p.isType(piece, p.Knight)) {
 
             } else if (p.isType(piece, p.Pawn)) {
-
+                vector < moveStruct> pawnMoves = generatePawnMoves(rank, file);
+                moveList.insert(moveList.end(), pawnMoves.begin(), pawnMoves.end());
             } else {
                 continue;
             }
@@ -112,11 +113,10 @@ vector< moveStruct > Board::generateMoves() {
 
 vector< moveStruct > Board::generateRookMoves(int rank, int file) {
     vector< moveStruct > moveList;
-    bitset<5> currPiece = square[rank][file];
     for (int rankOffset = 1; rankOffset <= SquaresToEdge[rank][file].north; rankOffset++) {
         if (!p.isType(square[rank-rankOffset][file], p.None)) {
             // Check if same color, if not, add capture to move list and break, else break.
-            if (!p.isColor(currPiece, activeColorBits)) {
+            if (!p.isColor(square[rank-rankOffset][file], activeColorBits)) {
                 moveStruct m;
                 m.startSquare = indexToPosition(rank, file);
                 m.endSquare = indexToPosition(rank-rankOffset, file);
@@ -133,7 +133,7 @@ vector< moveStruct > Board::generateRookMoves(int rank, int file) {
     for (int rankOffset = 1; rankOffset <= SquaresToEdge[rank][file].south; rankOffset++) {
         if (!p.isType(square[rank+rankOffset][file], p.None)) {
             // Check if same color, if not, add capture to move list and break, else break.
-            if (!p.isColor(currPiece, activeColorBits)) {
+            if (!p.isColor(square[rank+rankOffset][file], activeColorBits)) {
                 moveStruct m;
                 m.startSquare = indexToPosition(rank, file);
                 m.endSquare = indexToPosition(rank+rankOffset, file);
@@ -150,7 +150,7 @@ vector< moveStruct > Board::generateRookMoves(int rank, int file) {
     for (int fileOffset = 1; fileOffset <= SquaresToEdge[rank][file].east; fileOffset++) {
         if (!p.isType(square[rank][file+fileOffset], p.None)) {
             // Check if same color, if not, add capture to move list and break, else break.
-            if (!p.isColor(currPiece, activeColorBits)) {
+            if (!p.isColor(square[rank][file+fileOffset], activeColorBits)) {
                 moveStruct m;
                 m.startSquare = indexToPosition(rank, file);
                 m.endSquare = indexToPosition(rank, file+fileOffset);
@@ -167,7 +167,7 @@ vector< moveStruct > Board::generateRookMoves(int rank, int file) {
     for (int fileOffset = 1; fileOffset <= SquaresToEdge[rank][file].west; fileOffset++) {
         if (!p.isType(square[rank][file-fileOffset], p.None)) {
             // Check if same color, if not, add capture to move list and break, else break.
-            if (!p.isColor(currPiece, activeColorBits)) {
+            if (!p.isColor(square[rank][file-fileOffset], activeColorBits)) {
                 moveStruct m;
                 m.startSquare = indexToPosition(rank, file);
                 m.endSquare = indexToPosition(rank, file-fileOffset);
@@ -187,10 +187,9 @@ vector< moveStruct > Board::generateRookMoves(int rank, int file) {
 
 vector< moveStruct > Board::generateBishopMoves(int rank, int file) {
     vector< moveStruct > moveList;
-    bitset<5> currPiece = square[rank][file];
     for (int offset = 1; offset <= SquaresToEdge[rank][file].northEast; offset++) {
         if (!p.isType(square[rank-offset][file+offset], p.None)) {
-            if (!p.isColor(currPiece, activeColorBits)) {
+            if (!p.isColor(square[rank-offset][file+offset], activeColorBits)) {
                 moveStruct m;
                 m.startSquare = indexToPosition(rank, file);
                 m.endSquare = indexToPosition(rank-offset, file+offset);
@@ -205,7 +204,7 @@ vector< moveStruct > Board::generateBishopMoves(int rank, int file) {
     }
     for (int offset = 1; offset <= SquaresToEdge[rank][file].southEast; offset++) {
         if (!p.isType(square[rank+offset][file+offset], p.None)) {
-            if (!p.isColor(currPiece, activeColorBits)) {
+            if (!p.isColor(square[rank+offset][file+offset], activeColorBits)) {
                 moveStruct m;
                 m.startSquare = indexToPosition(rank, file);
                 m.endSquare = indexToPosition(rank+offset, file+offset);
@@ -220,7 +219,7 @@ vector< moveStruct > Board::generateBishopMoves(int rank, int file) {
     }
     for (int offset = 1; offset <= SquaresToEdge[rank][file].southWest; offset++) {
         if (!p.isType(square[rank+offset][file-offset], p.None)) {
-            if (!p.isColor(currPiece, activeColorBits)) {
+            if (!p.isColor(square[rank+offset][file-offset], activeColorBits)) {
                 moveStruct m;
                 m.startSquare = indexToPosition(rank, file);
                 m.endSquare = indexToPosition(rank+offset, file-offset);
@@ -235,7 +234,7 @@ vector< moveStruct > Board::generateBishopMoves(int rank, int file) {
     }
     for (int offset = 1; offset <= SquaresToEdge[rank][file].northWest; offset++) {
         if (!p.isType(square[rank-offset][file-offset], p.None)) {
-            if (!p.isColor(currPiece, activeColorBits)) {
+            if (!p.isColor(square[rank-offset][file-offset], activeColorBits)) {
                 moveStruct m;
                 m.startSquare = indexToPosition(rank, file);
                 m.endSquare = indexToPosition(rank-offset, file-offset);
@@ -256,6 +255,71 @@ vector< moveStruct > Board::generateQueenMoves(int rank, int file) {
     vector < moveStruct> moveList = generateRookMoves(rank, file);
     vector < moveStruct> bishopMoves = generateBishopMoves(rank, file);
     moveList.insert(moveList.end(), bishopMoves.begin(), bishopMoves.end());
+
+    return moveList;
+}
+
+vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
+    vector< moveStruct > moveList;
+
+    // Determine direction since Pawns can only move forward in a single direction. 
+    int rankDirection = -1;
+    if (p.isColor(activeColorBits, p.White)) {
+        rankDirection = 1;
+    }
+
+    // Single step
+    if (p.isType(square[rank-1*rankDirection][file], p.None)) {
+        moveStruct m;
+        m.startSquare = indexToPosition(rank, file);
+        m.endSquare = indexToPosition(rank-1*rankDirection, file);
+        moveList.push_back(m);
+    }
+
+    // Two step
+    if (p.isColor(activeColorBits, p.White)) {
+        if (rank == 6) {
+            if (p.isType(square[rank-2*rankDirection][file], p.None)) {
+                moveStruct m;
+                m.startSquare = indexToPosition(rank, file);
+                m.endSquare = indexToPosition(rank-2*rankDirection, file);
+                moveList.push_back(m);
+            }  
+        }
+    } else if (p.isColor(activeColorBits, p.Black)) {
+        if (rank == 1) {
+            if (p.isType(square[rank-2*rankDirection][file], p.None)) {
+                moveStruct m;
+                m.startSquare = indexToPosition(rank, file);
+                m.endSquare = indexToPosition(rank-2*rankDirection, file);
+                moveList.push_back(m);
+            }  
+        }
+    }
+
+    // Capture
+    if (file < 8 && !p.isType(square[rank-1*rankDirection][file+1], p.None) && !p.isColor(square[rank-1*rankDirection][file+1], activeColorBits)) {
+        moveStruct m;
+        m.startSquare = indexToPosition(rank, file);
+        m.endSquare = indexToPosition(rank-1*rankDirection, file+1);
+        moveList.push_back(m);
+    }
+    if (file > 0 && !p.isType(square[rank-1*rankDirection][file-1], p.None) && !p.isColor(square[rank-1*rankDirection][file-1], activeColorBits)) {
+        moveStruct m;
+        m.startSquare = indexToPosition(rank, file);
+        m.endSquare = indexToPosition(rank-1*rankDirection, file-1);
+        moveList.push_back(m);
+    }
+
+    // En Passant
+    if (enPassantTargets.length() == 2) {
+        if (positionToRank(enPassantTargets) == rank - 1*rankDirection && abs(positionToFile(enPassantTargets) - file) == 1) {
+            moveStruct m;
+            m.startSquare = indexToPosition(rank, file);
+            m.endSquare = enPassantTargets;
+            moveList.push_back(m);
+        }
+    }
 
     return moveList;
 }

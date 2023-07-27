@@ -42,7 +42,7 @@ int main()
             if (msg.rfind("position", 0) == 0) {
                 fen f = parsePosition(msg);
                 b.setupBoard(f);
-                b.printBoard();
+                // b.printBoard();
             }
             if (msg.rfind("go", 0) == 0) {
                 vector< moveStruct > moveList = b.generateMoves();
@@ -50,7 +50,7 @@ int main()
                     cout << "No moves found" << endl;
                     continue;
                 }; // tmp
-                printMoveList(moveList);
+                // printMoveList(moveList);
                 int randomIndex = rand() % moveList.size();
                 moveStruct m = moveList[randomIndex];
                 string move = moveStructToMoveString(m);
