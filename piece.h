@@ -23,5 +23,7 @@ namespace piece {
         const bitset<5> Black{16};
 
         bool isType(bitset<5> queryPiece, bitset<5> targetPiece);
+
+        bool isColor(bitset<5> queryPiece, bitset<5> targetPiece);
 };
 } // namespace piece

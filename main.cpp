@@ -17,6 +17,7 @@ int main()
     getline(cin, msg); // Read message from GUI
     
     if (msg == "uci") {
+        board::Board b;
         
         // Send some engine info to GUI
         cout << "id name EugineEngineV1" << endl
@@ -40,12 +41,20 @@ int main()
             }
             if (msg.rfind("position", 0) == 0) {
                 fen f = parsePosition(msg);
-                board::Board b(f);
+                b.setupBoard(f);
                 b.printBoard();
             }
             if (msg.rfind("go", 0) == 0) {
-                vector<string> tmpVec = {"f2f3"};
-                cout << "bestmove g1f3 ponder b8c6" << endl;
+                vector< moveStruct > moveList = b.generateMoves();
+                if (!moveList.size()) {
+                    cout << "No moves found" << endl;
+                    continue;
+                }; // tmp
+                printMoveList(moveList);
+                int randomIndex = rand() % moveList.size();
+                moveStruct m = moveList[randomIndex];
+                string move = moveStructToMoveString(m);
+                cout << "bestmove " << move << " ponder b8c6" << endl;
             }
             else {
                 // cout << msg << endl;

@@ -37,3 +37,12 @@ struct numSquaresStruct {
 };
 
 vector< vector< numSquaresStruct > > numSquaresToEdges();
+
+struct moveStruct {
+    string startSquare;
+    string endSquare;
+};
+
+string moveStructToMoveString(moveStruct m);
+
+void printMoveList(vector< moveStruct > moveList);

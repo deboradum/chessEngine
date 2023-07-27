@@ -142,35 +142,35 @@ int positionToFile(string squarePos) {
 string indexToPosition(int rank, int file) {
     string pos = "";
     switch (file) {
-    case '0':
+    case 0:
         pos.push_back('a');
         break;
-    case '1':
+    case 1:
         pos.push_back('b');
         break;
-    case '2':
+    case 2:
         pos.push_back('c');
         break;
-    case '3':
+    case 3:
         pos.push_back('d');
         break;
-    case '4':
+    case 4:
         pos.push_back('e');
         break;
-    case '5':
+    case 5:
         pos.push_back('f');
         break;
-    case '6':
+    case 6:
         pos.push_back('g');
         break;
-    case '7':
+    case 7:
         pos.push_back('h');
         break;
     default:
         break;
     }
 
-    pos.push_back(rank + '0');
+    pos.push_back(8-rank + '0');
 
     assert(pos.length() == 2);
 
@@ -206,4 +206,14 @@ vector< vector< numSquaresStruct > > numSquaresToEdges() {
     }
 
     return numSquares;
+}
+
+string moveStructToMoveString(moveStruct m) {
+    return m.startSquare + m.endSquare;
+}
+
+void printMoveList(vector< moveStruct > moveList) {
+    for (moveStruct m : moveList) {
+        cout << m.startSquare << m.endSquare << " ";
+    }
 }
