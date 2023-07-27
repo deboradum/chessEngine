@@ -23,49 +23,58 @@ vector<string> convertFen(string fenPP) {
     return result;
 }
 
+void setFen(int fenIndex, fen &f, string s) {
+    switch (fenIndex) {
+        case 0:
+            break;
+        case 1:
+            break;
+        case 2:
+            f.piecePlacement = s;
+            break;
+        case 3:
+            f.activeColor = s;
+            break;
+        case 4:
+            f.castlingRights = s;
+            break;
+        case 5:
+            f.enPassantTargets = s;
+            break;
+        case 6:
+            f.halfMoves = stoi(s);
+            break;
+        case 7:
+            f.fullMoves = stoi(s);
+            break;
+        default:
+            if (s == "moves") break;
+
+            f.movesMade.push_back(s);
+            break;
+        }
+}
+
 fen parsePosition(string positionString) {
     fen f;
-    int part = 0;
-    string partString = "";
+    int fenIndex = 0;
+    string fenElement = "";
     for (char& c : positionString) {
-        // Inserts current line to vector on delimiter.
+        /*  A received position consists of >= 8 parts:
+            position fen rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 moves .....
+            The first two can be discarded.
+        */
+       // Inserts current line to vector on delimiter.
         if (c == ' ') {
-            switch (part) {
-            case 0:
-                break;
-            case 1:
-                break;
-            case 2:
-                f.piecePlacement = partString;
-                break;
-            case 3:
-                f.activeColor = partString;
-                break;
-            case 4:
-                f.castlingRights = partString;
-                break;
-            case 5:
-                f.enPassantTargets = partString;
-                break;
-            case 6:
-                f.halfMoves = stoi(partString);
-                break;
-            case 7:
-                f.fullMoves = stoi(partString);
-                break;
-            default:
-                break;
-            }
-
-            partString = "";
-            part++;
-            continue;
-        }
-        // Appends to current line.
-        partString.push_back(c);
+            setFen(fenIndex, f, fenElement);
+            fenElement = "";
+            fenIndex++;
+        } else {
+             // Appends to current line.
+            fenElement.push_back(c);
+        }  
     }
-
-    f.movesMade = vector<string>{};
+    setFen(fenIndex, f, fenElement);
 
     return f; 
 }
@@ -75,47 +84,22 @@ void setPiece(int rank, int file, char pieceChar, vector< vector<bitset<5> > > &
     bool whitePiece = isupper(pieceChar);
     switch (tolower(pieceChar)) {
         case 'k':
-            square[rank][file] = whitePiece ? Piece.White : Piece.Black | Piece.King;
-            // if (whitePiece) {
-            //     square[rank][file] = whitePiece ? Piece.White : Piece.Black | Piece.King;
-            // } else {
-            //     square[rank][file] = Piece.Black | Piece.King;
-            // }
+            square[rank][file] = whitePiece ? Piece.White | Piece.King : Piece.Black | Piece.King;
             break;
         case 'q':
-            if (whitePiece) {
-                square[rank][file] = Piece.White | Piece.Queen;
-            } else {
-                square[rank][file] = Piece.Black | Piece.Queen;
-            }
+            square[rank][file] = whitePiece ? Piece.White | Piece.Queen : Piece.Black | Piece.Queen;
             break;
         case 'r':
-            if (whitePiece) {
-                square[rank][file] = Piece.White | Piece.Rook;
-            } else {
-                square[rank][file] = Piece.Black | Piece.Rook;
-            }
+            square[rank][file] = whitePiece ? Piece.White | Piece.Rook : Piece.Black | Piece.Rook;
             break;
         case 'b':
-            if (whitePiece) {
-                square[rank][file] = Piece.White | Piece.Bishop;
-            } else {
-                square[rank][file] = Piece.Black | Piece.Bishop;
-            }
+            square[rank][file] = whitePiece ? Piece.White | Piece.Bishop : Piece.Black | Piece.Bishop;
             break;
         case 'n':
-            if (whitePiece) {
-                square[rank][file] = Piece.White | Piece.Knight;
-            } else {
-                square[rank][file] = Piece.Black | Piece.Knight;
-            }
+            square[rank][file] = whitePiece ? Piece.White | Piece.Knight : Piece.Black | Piece.Knight;
             break;
         case 'p':
-            if (whitePiece) {
-                square[rank][file] = Piece.White | Piece.Pawn;
-            } else {
-                square[rank][file] = Piece.Black | Piece.Pawn;
-            }
+            square[rank][file] = whitePiece ? Piece.White | Piece.Pawn : Piece.Black | Piece.Pawn;
             break;
     }
 

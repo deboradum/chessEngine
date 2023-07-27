@@ -11,6 +11,8 @@ using namespace std;
 
 vector<string> convertFen(string fen);
 
+void setFen(int fenIndex, fen &f, string s);
+
 fen parsePosition(string positionString);
 
 void setPiece(int rank, int file, char pieceChar, vector< vector<bitset<5> > > &square);
