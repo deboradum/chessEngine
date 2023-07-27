@@ -1,4 +1,5 @@
 #include "helperFunctions.h"
+#include "piece.h"
 
 using namespace std;
 
@@ -67,4 +68,56 @@ fen parsePosition(string positionString) {
     f.movesMade = vector<string>{};
 
     return f; 
+}
+
+void setPiece(int rank, int file, char pieceChar, vector< vector<bitset<5> > > &square) {
+    piece::Piece Piece;
+    bool whitePiece = isupper(pieceChar);
+    switch (tolower(pieceChar)) {
+        case 'k':
+            square[rank][file] = whitePiece ? Piece.White : Piece.Black | Piece.King;
+            // if (whitePiece) {
+            //     square[rank][file] = whitePiece ? Piece.White : Piece.Black | Piece.King;
+            // } else {
+            //     square[rank][file] = Piece.Black | Piece.King;
+            // }
+            break;
+        case 'q':
+            if (whitePiece) {
+                square[rank][file] = Piece.White | Piece.Queen;
+            } else {
+                square[rank][file] = Piece.Black | Piece.Queen;
+            }
+            break;
+        case 'r':
+            if (whitePiece) {
+                square[rank][file] = Piece.White | Piece.Rook;
+            } else {
+                square[rank][file] = Piece.Black | Piece.Rook;
+            }
+            break;
+        case 'b':
+            if (whitePiece) {
+                square[rank][file] = Piece.White | Piece.Bishop;
+            } else {
+                square[rank][file] = Piece.Black | Piece.Bishop;
+            }
+            break;
+        case 'n':
+            if (whitePiece) {
+                square[rank][file] = Piece.White | Piece.Knight;
+            } else {
+                square[rank][file] = Piece.Black | Piece.Knight;
+            }
+            break;
+        case 'p':
+            if (whitePiece) {
+                square[rank][file] = Piece.White | Piece.Pawn;
+            } else {
+                square[rank][file] = Piece.Black | Piece.Pawn;
+            }
+            break;
+    }
+
+    return;
 }

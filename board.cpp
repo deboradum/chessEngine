@@ -42,7 +42,6 @@ void Board::setupBoard(fen f) {
     halfMoves = f.halfMoves;
 
     vector<string> fenPP = convertFen(f.piecePlacement);
-    piece::Piece Piece;
     int rank = 0;
     for (string line : fenPP) {
         int file = 0;
@@ -51,50 +50,7 @@ void Board::setupBoard(fen f) {
                 file += int(c)-48;
                 continue;
             }
-            switch (tolower(c)) {
-                case 'k':
-                    if (isupper(c)) {
-                        square[rank][file] = Piece.White | Piece.King;
-                    } else {
-                        square[rank][file] = Piece.Black | Piece.King;
-                    }
-                    break;
-                case 'q':
-                    if (isupper(c)) {
-                        square[rank][file] = Piece.White | Piece.Queen;
-                    } else {
-                        square[rank][file] = Piece.Black | Piece.Queen;
-                    }
-                    break;
-                case 'r':
-                    if (isupper(c)) {
-                        square[rank][file] = Piece.White | Piece.Rook;
-                    } else {
-                        square[rank][file] = Piece.Black | Piece.Rook;
-                    }
-                    break;
-                case 'b':
-                    if (isupper(c)) {
-                        square[rank][file] = Piece.White | Piece.Bishop;
-                    } else {
-                        square[rank][file] = Piece.Black | Piece.Bishop;
-                    }
-                    break;
-                case 'n':
-                    if (isupper(c)) {
-                        square[rank][file] = Piece.White | Piece.Knight;
-                    } else {
-                        square[rank][file] = Piece.Black | Piece.Knight;
-                    }
-                    break;
-                case 'p':
-                    if (isupper(c)) {
-                        square[rank][file] = Piece.White | Piece.Pawn;
-                    } else {
-                        square[rank][file] = Piece.Black | Piece.Pawn;
-                    }
-                    break;
-            }
+            setPiece(rank, file, c, square);
             file++;
         }
         rank++;
