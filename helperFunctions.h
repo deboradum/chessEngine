@@ -20,3 +20,5 @@ void setPiece(int rank, int file, char pieceChar, vector< vector<bitset<5> > > &
 int positionRank(string squarePos);
 
 int positionFile(string squarePos);
+
+bool validPieceChar(char pieceChar);

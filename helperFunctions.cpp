@@ -80,6 +80,8 @@ fen parsePosition(string positionString) {
 }
 
 void setPiece(int rank, int file, char pieceChar, vector< vector<bitset<5> > > &square) {
+    assert(validPieceChar(pieceChar));
+
     piece::Piece Piece;
     bool whitePiece = isupper(pieceChar);
     switch (tolower(pieceChar)) {
@@ -135,4 +137,9 @@ int positionFile(string squarePos) {
     default:
         return -1;
     }
+}
+
+bool validPieceChar(char pieceChar) {
+    char lowerPieceChar = tolower(pieceChar);
+    return lowerPieceChar == 'k' || lowerPieceChar == 'q' || lowerPieceChar == 'r' || lowerPieceChar == 'b' || lowerPieceChar == 'n' || lowerPieceChar == 'p';
 }
