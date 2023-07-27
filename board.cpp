@@ -68,8 +68,8 @@ void Board::makeMove(string move) {
     string start = move.substr(0, 2);
     string end = move.substr(2, 4);
 
-    square[positionRank(end)][positionFile(end)] = square[positionRank(start)][positionFile(start)];
-    square[positionRank(start)][positionFile(start)] = EMPTY_SQUARE;
+    square[positionToRank(end)][positionToFile(end)] = square[positionToRank(start)][positionToFile(start)];
+    square[positionToRank(start)][positionToFile(start)] = EMPTY_SQUARE;
 
     return;
 }

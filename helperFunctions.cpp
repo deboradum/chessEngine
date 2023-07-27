@@ -108,14 +108,14 @@ void setPiece(int rank, int file, char pieceChar, vector< vector<bitset<5> > > &
     return;
 }
 
-int positionRank(string squarePos) {
+int positionToRank(string squarePos) {
     assert (squarePos.length() == 2);
     int rank = squarePos[1] - '0';
 
     return 8-rank;
 }
 
-int positionFile(string squarePos) {
+int positionToFile(string squarePos) {
     assert (squarePos.length() == 2);
     switch (squarePos[0]) {
     case 'a':
@@ -137,6 +137,44 @@ int positionFile(string squarePos) {
     default:
         return -1;
     }
+}
+
+string indexToPosition(int rank, int file) {
+    string pos = "";
+    switch (file) {
+    case '0':
+        pos.push_back('a');
+        break;
+    case '1':
+        pos.push_back('b');
+        break;
+    case '2':
+        pos.push_back('c');
+        break;
+    case '3':
+        pos.push_back('d');
+        break;
+    case '4':
+        pos.push_back('e');
+        break;
+    case '5':
+        pos.push_back('f');
+        break;
+    case '6':
+        pos.push_back('g');
+        break;
+    case '7':
+        pos.push_back('h');
+        break;
+    default:
+        break;
+    }
+
+    pos.push_back(rank + '0');
+
+    assert(pos.length() == 2);
+
+    return; pos;
 }
 
 bool validPieceChar(char pieceChar) {

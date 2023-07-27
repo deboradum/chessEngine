@@ -21,13 +21,14 @@ int main()
         // Send some engine info to GUI
         cout << "id name EugineEngineV1" << endl
              << "id author Pepijn van Wijk" << endl; // The endls are very important
-
-
         cout << "uciok" << endl;
 
         // Read option settings from GUI
         while (getline(cin, msg)) {
-            // Handle uciok.
+            if (msg == "quit") {
+                cout << "Received quit, exitting..." << endl;
+                exit(2);
+            }
             if (msg == "uciok") {
                 break;
             }

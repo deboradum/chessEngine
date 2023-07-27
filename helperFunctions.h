@@ -17,8 +17,10 @@ fen parsePosition(string positionString);
 
 void setPiece(int rank, int file, char pieceChar, vector< vector<bitset<5> > > &square);
 
-int positionRank(string squarePos);
+int positionToRank(string squarePos);
 
-int positionFile(string squarePos);
+int positionToFile(string squarePos);
+
+string indexToPosition(int rank, int file);
 
 bool validPieceChar(char pieceChar);
