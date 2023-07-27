@@ -21,7 +21,8 @@ int main()
         
         // Send some engine info to GUI
         cout << "id name EugineEngineV1" << endl
-             << "id author Pepijn van Wijk" << endl; // The endls are very important
+             << "id author Pepijn van Wijk" << endl;
+        
         cout << "uciok" << endl;
 
         // Read option settings from GUI
@@ -54,7 +55,7 @@ int main()
                 int randomIndex = rand() % moveList.size();
                 moveStruct m = moveList[randomIndex];
                 string move = moveStructToMoveString(m);
-                cout << "bestmove " << move << " ponder b8c6" << endl;
+                cout << "bestmove " << move << endl;
             }
             else {
                 // cout << msg << endl;
