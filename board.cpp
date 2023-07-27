@@ -39,6 +39,14 @@ void Board::printBoard() {
         cout << el << " ";
     };
     cout << endl;
+
+    cout << "Squares to edges: " << endl;
+    for (vector< numSquaresStruct > line : SquaresToEdge) {
+        for (numSquaresStruct s : line) {
+            cout << s.northEast << " ";
+        }
+        cout << endl;
+    };
 }
 
 void Board::setupBoard(fen f) {

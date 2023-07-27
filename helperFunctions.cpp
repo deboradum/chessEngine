@@ -174,10 +174,36 @@ string indexToPosition(int rank, int file) {
 
     assert(pos.length() == 2);
 
-    return; pos;
+    return pos;
 }
 
 bool validPieceChar(char pieceChar) {
     char lowerPieceChar = tolower(pieceChar);
     return lowerPieceChar == 'k' || lowerPieceChar == 'q' || lowerPieceChar == 'r' || lowerPieceChar == 'b' || lowerPieceChar == 'n' || lowerPieceChar == 'p';
+}
+
+vector< vector< numSquaresStruct > > numSquaresToEdges() {
+    vector< vector< numSquaresStruct > > numSquares(8, vector< numSquaresStruct >(8));
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file <8; file++) {
+            int north = rank;
+            int south = 7-rank;
+            int west = file;
+            int east = 7-file;
+
+            numSquaresStruct s;
+            s.north = north;
+            s.northEast = min(north, east);
+            s.east = east;
+            s.southEast = min(south, east);
+            s.south = south;
+            s.southWest = min(south, west);
+            s.west = west;
+            s.northWest = min(north, west);
+
+            numSquares[rank][file] = s;
+        }
+    }
+
+    return numSquares;
 }

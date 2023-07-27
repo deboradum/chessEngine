@@ -12,6 +12,8 @@ set(HEADERS
     board.h
     piece.h
     helperFunctions.h
+    constants.h
+    fen.h
 )
 
 

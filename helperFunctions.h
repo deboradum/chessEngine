@@ -24,3 +24,16 @@ int positionToFile(string squarePos);
 string indexToPosition(int rank, int file);
 
 bool validPieceChar(char pieceChar);
+
+struct numSquaresStruct {
+    int north;
+    int northEast;
+    int east;
+    int southEast;
+    int south;
+    int southWest;
+    int west;
+    int northWest;
+};
+
+vector< vector< numSquaresStruct > > numSquaresToEdges();

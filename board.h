@@ -1,5 +1,6 @@
 #pragma once
 #include "fen.h"
+#include "helperFunctions.h"
 #include <_ctype.h>
 #include <cctype>
 #include <iostream>
@@ -26,6 +27,8 @@ namespace board {
         int halfMoves;
         int fullMoves;
         vector<string> movesMade = {};
+
+        vector< vector< numSquaresStruct > > SquaresToEdge = numSquaresToEdges();
 
         // Constructor.
         Board(fen f);
