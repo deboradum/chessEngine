@@ -44,6 +44,7 @@ struct moveStruct {
 };
 
 moveStruct createMoveStruct(int beginRank, int beginFile, int endRank, int endFile);
+moveStruct createMoveStructPromotion(int beginRank, int beginFile, int endRank, int endFile, string promotion);
 
 string moveStructToMoveString(moveStruct m);
 

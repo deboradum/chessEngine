@@ -46,6 +46,7 @@ int main()
                 // b.printBoard();
             }
             if (msg.rfind("go", 0) == 0) {
+                srand(time(NULL));
                 printMoveList(b.possibleMoves);
                 cout << endl << "Attacked Squares: ";
                 for (string a : b.attackedSquares) {

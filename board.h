@@ -60,6 +60,7 @@ namespace board {
         vector< moveStruct > generateBishopMoves(int rank, int file);
         vector< moveStruct > generateKnightMoves(int rank, int file);
         vector< moveStruct > generatePawnMoves(int rank, int file);
+        vector< moveStruct > generateCastlingMoves();
         // Sets up board.
         void setupBoardLayout(fen f);
         // Makes a move on the board.

@@ -225,6 +225,14 @@ moveStruct createMoveStruct(int beginRank, int beginFile, int endRank, int endFi
     return m;
 }
 
+moveStruct createMoveStructPromotion(int beginRank, int beginFile, int endRank, int endFile, string promotion) {
+    moveStruct m;
+    m.startSquare = indexToPosition(beginRank, beginFile);
+    m.endSquare = indexToPosition(endRank, endFile) + promotion;
+
+    return m;
+}
+
 bool isLegalSquare(int rank, int file) {
     return (0 <= rank && rank <= 7) && (0 <= file && file <= 7);
 }

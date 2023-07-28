@@ -93,6 +93,10 @@ void Board::makeMove(string move) {
 
 vector< moveStruct > Board::generateMoves() {
     vector< moveStruct > moveList;
+    if (inCheck()) {
+
+    }
+
     for (int rank = 0; rank < 8; rank++) {
         for (int file = 0; file < 8; file++) {
             bitset<5> piece = square[rank][file];
@@ -121,6 +125,20 @@ vector< moveStruct > Board::generateMoves() {
                 continue;
             }
         }
+    }
+    vector < moveStruct> castlingMoves = generateCastlingMoves();
+    moveList.insert(moveList.end(), castlingMoves.begin(), castlingMoves.end());
+
+    return moveList;
+}
+
+vector< moveStruct > Board::generateCastlingMoves() {
+    vector< moveStruct > moveList;
+
+    if (castlingRights == "-") {
+        cout << "No one can castle!" << endl;
+    } else {
+        cout << "Castling available: " << castlingRights << endl;
     }
 
     return moveList;
@@ -321,7 +339,14 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
 
     // Single step
     if (isEmptySquare(rank-1*rankDirection, file)) {
-        moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file));
+        if ((p.isColor(activeColorBits, p.White) && rank == 1) || p.isColor(activeColorBits, p.Black) && rank == 6) {
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file, "Q"));
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file, "R"));
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file, "B"));
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file, "N"));
+        } else {
+            moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file));
+        }
     }
 
     // Two step first move
@@ -337,10 +362,24 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
 
     // Capture
     if (isLegalSquare(rank-1*rankDirection, file+1) && !isEmptySquare(rank-1*rankDirection, file+1) && isEnemy(rank-1*rankDirection, file+1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file+1));
+        if ((p.isColor(activeColorBits, p.White) && rank == 1) || p.isColor(activeColorBits, p.Black) && rank == 6) {
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file+1, "Q"));
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file+1, "R"));
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file+1, "B"));
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file+1, "N"));
+        } else {
+            moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file+1));
+        }
     }
     if (isLegalSquare(rank-1*rankDirection, file-1) && !isEmptySquare(rank-1*rankDirection, file-1) && isEnemy(rank-1*rankDirection, file-1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file-1));
+        if ((p.isColor(activeColorBits, p.White) && rank == 1) || p.isColor(activeColorBits, p.Black) && rank == 6) {
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file-1, "Q"));
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file-1, "R"));
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file-1, "B"));
+            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file-1, "N"));
+        } else {
+            moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file-1));
+        }
     }
 
     // En Passant
@@ -573,7 +612,6 @@ string Board::getKingPos(bitset<5> color) {
     for (int rank = 0; rank < 8; rank++) {
         for (int file = 0; file < 8; file++) {
             if (square[rank][file] == (color | p.King)) {
-                cout << "King position: " << indexToPosition(rank, file) << endl;
                 return indexToPosition(rank, file);
             }
         }
