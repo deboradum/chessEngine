@@ -175,6 +175,11 @@ namespace board {
         // Returns true if legal, false otherwise
         bool queenCastleLegalB();
 
+        // Checks if a move is a castling move.
+        // move: The move that is to be checked.
+        // Returns true if the move is a castling move, false otherwise.
+        bool isCastlingMove(string move);
+
         // performs a move on the board.
         // move: The move that is to be performed.
         void makeMove(string move);

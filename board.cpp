@@ -10,10 +10,15 @@
 #include <bitset>
 #include <cstddef>
 
+#include <chrono>
+using namespace std::chrono;
+
 using namespace std;
 using namespace board;
 
 void Board::setupBoard(fen f) {
+    auto start = high_resolution_clock::now();
+
     setupBoardLayout(f.piecePlacement);
     activeColor = f.activeColor;
     if (!activeColor.compare("w")) {
@@ -37,6 +42,10 @@ void Board::setupBoard(fen f) {
     }
     attackedSquares = generateAttackedSquares();
     legalMoves = generateMoves();
+
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    cout << "Time taken to setup board: " << duration.count() << " microseconds" << endl;
 }
 
 void Board::printBoard() {
@@ -85,6 +94,21 @@ void Board::makeMove(string move) {
 
         square[positionToRank(end)][positionToFile(end)] = square[positionToRank(start)][positionToFile(start)];
         square[positionToRank(start)][positionToFile(start)] = EMPTY_SQUARE;
+        if (isCastlingMove(move)) {
+            if (!move.compare("e1c1")) {
+                square[7][3] = square[7][0];
+                square[7][0] = EMPTY_SQUARE;
+            } else if (!move.compare("e1g1")) {
+                square[7][5] = square[7][7];
+                square[7][7] = EMPTY_SQUARE;
+            } else if (!move.compare("e8c8")) {
+                square[0][3] = square[0][0];
+                square[0][0] = EMPTY_SQUARE;
+            } else if (!move.compare("e8g8")) {
+                square[0][5] = square[0][7];
+                square[0][7] = EMPTY_SQUARE;
+            }
+        }
     // In case of pawn promotion.
     } else if (move.length() == 5) {
         string start = move.substr(0, 2);
@@ -709,4 +733,13 @@ string Board::generateBestMove() {
     string move = moveStructToMoveString(m);
 
     return move;
+}
+
+bool Board::isCastlingMove(string move) {
+    if (!move.compare("e1c1") || !move.compare("e1g1") ||
+        !move.compare("e8c8") || !move.compare("e8g8")) {
+            return true;
+    }
+
+    return false;
 }
