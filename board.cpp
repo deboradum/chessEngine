@@ -99,7 +99,8 @@ vector< moveStruct > Board::generateMoves() {
                 vector < moveStruct> bishopMoves = generateBishopMoves(rank, file);
                 moveList.insert(moveList.end(), bishopMoves.begin(), bishopMoves.end());
             } else if (p.isType(piece, p.Knight)) {
-
+                vector < moveStruct> knightMoves = generateKnightMoves(rank, file);
+                moveList.insert(moveList.end(), knightMoves.begin(), knightMoves.end());
             } else if (p.isType(piece, p.Pawn)) {
                 vector < moveStruct> pawnMoves = generatePawnMoves(rank, file);
                 moveList.insert(moveList.end(), pawnMoves.begin(), pawnMoves.end());
@@ -116,36 +117,44 @@ vector< moveStruct > Board::generateKingMoves(int rank, int file) {
     vector< moveStruct > moveList;
     // Move north
     if ((isEmptySquare(rank-1, file) || isEnemy(rank-1, file)) && isLegalSquare(rank-1, file)) {
-        moveList.push_back(createMoveStruct(rank, file, rank-1, file));   
+        moveList.push_back(createMoveStruct(rank, file, rank-1, file));
     }
     // Move north east
     if ((isEmptySquare(rank-1, file+1) || isEnemy(rank-1, file+1)) && isLegalSquare(rank-1, file+1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank-1, file+1));   
+        moveList.push_back(createMoveStruct(rank, file, rank-1, file+1));
     }
     // Move east
     if ((isEmptySquare(rank, file+1) || isEnemy(rank, file+1)) && isLegalSquare(rank, file+1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank, file+1));   
+        moveList.push_back(createMoveStruct(rank, file, rank, file+1));
     }
     // Move south east
     if ((isEmptySquare(rank+1, file+1) || isEnemy(rank+1, file+1)) && isLegalSquare(rank+1, file+1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank+1, file+1));   
+        moveList.push_back(createMoveStruct(rank, file, rank+1, file+1));
     }
     // Move south
     if ((isEmptySquare(rank+1, file) || isEnemy(rank+1, file)) && isLegalSquare(rank+1, file)) {
-        moveList.push_back(createMoveStruct(rank, file, rank+1, file));   
+        moveList.push_back(createMoveStruct(rank, file, rank+1, file));
     }
     // Move south west
     if ((isEmptySquare(rank+1, file-1) || isEnemy(rank+1, file-1)) && isLegalSquare(rank+1, file-1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank+1, file-1));   
+        moveList.push_back(createMoveStruct(rank, file, rank+1, file-1));
     }
     // Move south west
     if ((isEmptySquare(rank, file-1) || isEnemy(rank, file-1)) && isLegalSquare(rank, file-1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank, file-1));   
+        moveList.push_back(createMoveStruct(rank, file, rank, file-1));
     }
     // Move north west
     if ((isEmptySquare(rank-1, file-1) || isEnemy(rank-1, file-1)) && isLegalSquare(rank-1, file-1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank-1, file-1));   
+        moveList.push_back(createMoveStruct(rank, file, rank-1, file-1));
     }
+
+    return moveList;
+}
+
+vector< moveStruct > Board::generateQueenMoves(int rank, int file) {
+    vector < moveStruct> moveList = generateRookMoves(rank, file);
+    vector < moveStruct> bishopMoves = generateBishopMoves(rank, file);
+    moveList.insert(moveList.end(), bishopMoves.begin(), bishopMoves.end());
 
     return moveList;
 }
@@ -237,13 +246,30 @@ vector< moveStruct > Board::generateBishopMoves(int rank, int file) {
 vector< moveStruct > Board::generateKnightMoves(int rank, int file) {
     vector< moveStruct > moveList;
 
-    return moveList;
-}
-
-vector< moveStruct > Board::generateQueenMoves(int rank, int file) {
-    vector < moveStruct> moveList = generateRookMoves(rank, file);
-    vector < moveStruct> bishopMoves = generateBishopMoves(rank, file);
-    moveList.insert(moveList.end(), bishopMoves.begin(), bishopMoves.end());
+    if (isLegalSquare(rank+1, file+2) && (isEmptySquare(rank+1, file+2) || isEnemy(rank+1, file+2))) {
+        moveList.push_back(createMoveStruct(rank, file, rank+1, file+2));
+    }
+    if (isLegalSquare(rank+1, file-2) && (isEmptySquare(rank+1, file-2) || isEnemy(rank+1, file-2))) {
+        moveList.push_back(createMoveStruct(rank, file, rank+1, file-2));
+    }
+    if (isLegalSquare(rank-1, file+2) && (isEmptySquare(rank-1, file+2) || isEnemy(rank-1, file+2))) {
+        moveList.push_back(createMoveStruct(rank, file, rank-1, file+2));
+    }
+    if (isLegalSquare(rank-1, file-2) && (isEmptySquare(rank-1, file-2) || isEnemy(rank-1, file-2))) {
+        moveList.push_back(createMoveStruct(rank, file, rank-1, file-2));
+    }
+    if (isLegalSquare(rank+2, file+1) && (isEmptySquare(rank+2, file+1) || isEnemy(rank+2, file+1))) {
+        moveList.push_back(createMoveStruct(rank, file, rank+2, file+1));
+    }
+    if (isLegalSquare(rank+2, file-1) && (isEmptySquare(rank+2, file-1) || isEnemy(rank+2, file-1))) {
+        moveList.push_back(createMoveStruct(rank, file, rank+2, file-1));
+    }
+    if (isLegalSquare(rank-2, file+1) && (isEmptySquare(rank-2, file+1) || isEnemy(rank-2, file+1))) {
+        moveList.push_back(createMoveStruct(rank, file, rank-2, file+1));
+    }
+    if (isLegalSquare(rank-2, file-1) && (isEmptySquare(rank-2, file-1) || isEnemy(rank-2, file-1))) {
+        moveList.push_back(createMoveStruct(rank, file, rank-2, file-1));
+    }
 
     return moveList;
 }

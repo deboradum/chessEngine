@@ -63,7 +63,7 @@ int main()
                 // cout << msg << endl;
                 // Parse msg and store option settings
                 // ...
-            }      
+            }
         }
     }
     
