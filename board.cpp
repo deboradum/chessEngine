@@ -14,19 +14,29 @@ using namespace std;
 using namespace board;
 
 void Board::setupBoard(fen f) {
-    setupBoardLayout(f);
+    setupBoardLayout(f.piecePlacement);
+    activeColor = f.activeColor;
+    if (!activeColor.compare("w")) {
+        activeColorBits = p.White;
+    } else {
+        activeColorBits = p.Black;
+    }
+    castlingRights = f.castlingRights;
+    enPassantTargets = f.enPassantTargets;
+    fullMoves = f.fullMoves;
+    halfMoves = f.halfMoves;
     for (string move : f.movesMade) {
-        if (!move.substr(0, 2).compare("a8") && p.isColor(activeColorBits, p.Black) || 
+        if (!move.substr(0, 2).compare("a8") && p.isColor(activeColorBits, p.Black) ||
             !move.substr(0, 2).compare("a1") && p.isColor(activeColorBits, p.White)) qRookMoved = true;
-        if (!move.substr(0, 2).compare("h8") && p.isColor(activeColorBits, p.Black) || 
+        if (!move.substr(0, 2).compare("h8") && p.isColor(activeColorBits, p.Black) ||
             !move.substr(0, 2).compare("h1") && p.isColor(activeColorBits, p.White)) kRookMoved = true;
-        if (!move.substr(0, 2).compare("e8") && p.isColor(activeColorBits, p.Black) || 
+        if (!move.substr(0, 2).compare("e8") && p.isColor(activeColorBits, p.Black) ||
             !move.substr(0, 2).compare("e1") && p.isColor(activeColorBits, p.White)) kingMoved = true;
         makeMove(move);
         movesMade.push_back(move);
     }
     attackedSquares = generateAttackedSquares();
-    possibleMoves = generateMoves();
+    legalMoves = generateMoves();
 }
 
 void Board::printBoard() {
@@ -42,35 +52,18 @@ void Board::printBoard() {
          << "Number of half moves: " << halfMoves << endl
          << "Number of full moves: " << fullMoves << endl
          << "Moves made: ";
-    
+
     for (string el : movesMade) {
         cout << el << " ";
     };
     cout << endl;
 }
 
-void Board::setupBoardLayout(fen f) {
-    square = {{bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}},
-              {bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}},
-              {bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}},
-              {bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}},
-              {bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}},
-              {bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}},
-              {bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}},
-              {bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}, bitset<5>{0}}};
-    activeColor = f.activeColor;
-    if (!activeColor.compare("w")) {
-        activeColorBits = p.White;
-    } else {
-        activeColorBits = p.Black;
-    }
-    castlingRights = f.castlingRights;
-    enPassantTargets = f.enPassantTargets;
-    fullMoves = f.fullMoves;
-    halfMoves = f.halfMoves;
+void Board::setupBoardLayout(string piecePlacement) {
+    square = vector< vector<bitset<5> > >(8, vector < bitset<5> >(8, {0}));
 
     int rank = 0;
-    for (string line : convertFen(f.piecePlacement)) {
+    for (string line : convertFenPP(piecePlacement)) {
         int file = 0;
         for (char& c : line) {
             if (isdigit(c)) {
@@ -410,7 +403,7 @@ vector< moveStruct > Board::generateKnightMoves(int rank, int file) {
 vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
     vector< moveStruct > moveList;
 
-    // Determine direction since Pawns can only move forward in a single direction. 
+    // Determine direction since Pawns can only move forward in a single direction.
     int rankDirection = -1;
     if (p.isColor(activeColorBits, p.White)) {
         rankDirection = 1;
@@ -419,7 +412,7 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
     // Single step
     if (isEmptySquare(rank-1*rankDirection, file)) {
         if ((p.isColor(activeColorBits, p.White) && rank == 1) || p.isColor(activeColorBits, p.Black) && rank == 6) {
-            vector< moveStruct > promotionMoves = addPromotionOptions(rank, file, rank-1*rankDirection, file);
+            vector< moveStruct > promotionMoves = generatePromotionOptions(rank, file, rank-1*rankDirection, file);
             moveList.insert(moveList.end(), promotionMoves.begin(), promotionMoves.end());
         } else {
             moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file));
@@ -430,7 +423,7 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
     if (p.isColor(activeColorBits, p.White)) {
         if (rank == 6 && isEmptySquare(rank-2*rankDirection, file) && isEmptySquare(rank-1*rankDirection, file)) {
             moveList.push_back(createMoveStruct(rank, file, rank-2*rankDirection, file));
-        }  
+        }
     } else if (p.isColor(activeColorBits, p.Black)) {
         if (rank == 1 && isEmptySquare(rank-2*rankDirection, file) && isEmptySquare(rank-1*rankDirection, file)) {
             moveList.push_back(createMoveStruct(rank, file, rank-2*rankDirection, file));
@@ -440,7 +433,7 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
     // Capture
     if (isLegalSquare(rank-1*rankDirection, file+1) && !isEmptySquare(rank-1*rankDirection, file+1) && isEnemy(rank-1*rankDirection, file+1)) {
         if ((p.isColor(activeColorBits, p.White) && rank == 1) || p.isColor(activeColorBits, p.Black) && rank == 6) {
-            vector< moveStruct > promotionMoves = addPromotionOptions(rank, file, rank-1*rankDirection, file+1);
+            vector< moveStruct > promotionMoves = generatePromotionOptions(rank, file, rank-1*rankDirection, file+1);
             moveList.insert(moveList.end(), promotionMoves.begin(), promotionMoves.end());
         } else {
             moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file+1));
@@ -448,7 +441,7 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
     }
     if (isLegalSquare(rank-1*rankDirection, file-1) && !isEmptySquare(rank-1*rankDirection, file-1) && isEnemy(rank-1*rankDirection, file-1)) {
         if ((p.isColor(activeColorBits, p.White) && rank == 1) || p.isColor(activeColorBits, p.Black) && rank == 6) {
-            vector< moveStruct > promotionMoves = addPromotionOptions(rank, file, rank-1*rankDirection, file-1);
+            vector< moveStruct > promotionMoves = generatePromotionOptions(rank, file, rank-1*rankDirection, file-1);
             moveList.insert(moveList.end(), promotionMoves.begin(), promotionMoves.end());
         } else {
             moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file-1));
@@ -468,7 +461,7 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
     return moveList;
 }
 
-vector< moveStruct > Board::addPromotionOptions(int beginRank, int beginFile, int endRank, int endFile) {
+vector< moveStruct > Board::generatePromotionOptions(int beginRank, int beginFile, int endRank, int endFile) {
     vector< moveStruct > moveList;
     moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "Q"));
     moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "R"));
@@ -671,7 +664,7 @@ vector< string > Board::generateKnightAttacks(int rank, int file) {
 
 vector< string > Board::generatePawnAttacks(int rank, int file) {
     vector < string > attackedSquaresList;
-    // Determine direction since Pawns can only move forward in a single direction. 
+    // Determine direction since Pawns can only move forward in a single direction.
     int rankDirection = 1;
     if (p.isColor(activeColorBits, p.White)) {
         rankDirection = -1;
@@ -706,13 +699,13 @@ string Board::getKingPos(bitset<5> color) {
     return "";
 }
 
-string Board::generateMove() {
-    if (!possibleMoves.size()) {
+string Board::generateBestMove() {
+    if (!legalMoves.size()) {
         return "XX";
     }; // No moves should not be possible I dont think
 
-    int randomIndex = rand() % possibleMoves.size();
-    moveStruct m = possibleMoves[randomIndex];
+    int randomIndex = rand() % legalMoves.size();
+    moveStruct m = legalMoves[randomIndex];
     string move = moveStructToMoveString(m);
 
     return move;

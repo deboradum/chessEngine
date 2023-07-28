@@ -3,7 +3,7 @@
 
 using namespace std;
 
-vector<string> convertFen(string fenPP) {
+vector<string> convertFenPP(string fenPP) {
     vector<string> result;
     string line = "";
 
@@ -71,11 +71,11 @@ fen parsePosition(string positionString) {
         } else {
              // Appends to current line.
             fenElement.push_back(c);
-        }  
+        }
     }
     setFen(fenIndex, f, fenElement);
 
-    return f; 
+    return f;
 }
 
 void setPiece(int rank, int file, char pieceChar, vector< vector<bitset<5> > > &square) {

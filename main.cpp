@@ -13,16 +13,17 @@ using namespace std;
 
 int main()
 {
+    srand(time(NULL));
     string msg;
     getline(cin, msg); // Read message from GUI
-    
+
     if (msg == "uci") {
         board::Board b;
-        
+
         // Send some engine info to GUI
         cout << "id name EugineEngineV1" << endl
              << "id author Pepijn van Wijk" << endl;
-        
+
         cout << "uciok" << endl;
 
         // Read option settings from GUI
@@ -46,15 +47,14 @@ int main()
                 // b.printBoard();
             }
             if (msg.rfind("go", 0) == 0) {
-                srand(time(NULL));
-                printMoveList(b.possibleMoves);
-                cout << endl << "Attacked Squares: ";
-                for (string a : b.attackedSquares) {
-                    cout << a << " ";
-                }
+                printMoveList(b.legalMoves);
                 cout << endl;
-
-                cout << "bestmove " << b.generateMove() << endl;
+                // cout << "Attacked Squares: ";
+                // for (string a : b.attackedSquares) {
+                //     cout << a << " ";
+                // }
+                // cout << endl;
+                cout << "bestmove " << b.generateBestMove() << endl;
             }
             else {
                 // cout << msg << endl;
@@ -63,7 +63,7 @@ int main()
             }
         }
     }
-    
+
     cout << "Press any key...";
     cin.get();
     return 0;
