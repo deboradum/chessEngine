@@ -29,6 +29,11 @@ namespace board {
         string enPassantTargets;
         int halfMoves;
         int fullMoves;
+
+        bool kingMoved = false;
+        bool qRookMoved = false;
+        bool kRookMoved = false;
+
         vector<string> movesMade = {};
         vector<string> attackedSquares;
         vector<moveStruct> possibleMoves;
@@ -60,6 +65,7 @@ namespace board {
         vector< moveStruct > generateBishopMoves(int rank, int file);
         vector< moveStruct > generateKnightMoves(int rank, int file);
         vector< moveStruct > generatePawnMoves(int rank, int file);
+        vector< moveStruct > addPromotionOptions(int beginRank, int beginFile, int endRank, int endFile);
         vector< moveStruct > generateCastlingMoves();
         // Sets up board.
         void setupBoardLayout(fen f);

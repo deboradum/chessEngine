@@ -340,10 +340,8 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
     // Single step
     if (isEmptySquare(rank-1*rankDirection, file)) {
         if ((p.isColor(activeColorBits, p.White) && rank == 1) || p.isColor(activeColorBits, p.Black) && rank == 6) {
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file, "Q"));
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file, "R"));
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file, "B"));
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file, "N"));
+            vector< moveStruct > promotionMoves = addPromotionOptions(rank, file, rank-1*rankDirection, file);
+            moveList.insert(moveList.end(), promotionMoves.begin(), promotionMoves.end());
         } else {
             moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file));
         }
@@ -363,20 +361,16 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
     // Capture
     if (isLegalSquare(rank-1*rankDirection, file+1) && !isEmptySquare(rank-1*rankDirection, file+1) && isEnemy(rank-1*rankDirection, file+1)) {
         if ((p.isColor(activeColorBits, p.White) && rank == 1) || p.isColor(activeColorBits, p.Black) && rank == 6) {
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file+1, "Q"));
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file+1, "R"));
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file+1, "B"));
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file+1, "N"));
+            vector< moveStruct > promotionMoves = addPromotionOptions(rank, file, rank-1*rankDirection, file+1);
+            moveList.insert(moveList.end(), promotionMoves.begin(), promotionMoves.end());
         } else {
             moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file+1));
         }
     }
     if (isLegalSquare(rank-1*rankDirection, file-1) && !isEmptySquare(rank-1*rankDirection, file-1) && isEnemy(rank-1*rankDirection, file-1)) {
         if ((p.isColor(activeColorBits, p.White) && rank == 1) || p.isColor(activeColorBits, p.Black) && rank == 6) {
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file-1, "Q"));
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file-1, "R"));
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file-1, "B"));
-            moveList.push_back(createMoveStructPromotion(rank, file, rank-1*rankDirection, file-1, "N"));
+            vector< moveStruct > promotionMoves = addPromotionOptions(rank, file, rank-1*rankDirection, file-1);
+            moveList.insert(moveList.end(), promotionMoves.begin(), promotionMoves.end());
         } else {
             moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file-1));
         }
@@ -391,6 +385,16 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
             moveList.push_back(m);
         }
     }
+
+    return moveList;
+}
+
+vector< moveStruct > Board::addPromotionOptions(int beginRank, int beginFile, int endRank, int endFile) {
+    vector< moveStruct > moveList;
+    moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "Q"));
+    moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "R"));
+    moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "B"));
+    moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "N"));
 
     return moveList;
 }
