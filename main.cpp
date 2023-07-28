@@ -51,8 +51,16 @@ int main()
                     cout << "No moves found" << endl;
                     continue;
                 }; // No moves should nmot be possible I dont think
-                // printMoveList(moveList);
-                // cout << endl;
+                printMoveList(moveList);
+                cout << endl << "Attacked Squares: ";
+                for (string a : b.attackedSquares) {
+                    cout << a << " ";
+                }
+                cout << endl;
+
+                if (b.inCheck()) {
+                    
+                }
 
                 int randomIndex = rand() % moveList.size();
                 moveStruct m = moveList[randomIndex];

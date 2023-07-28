@@ -19,6 +19,7 @@ void Board::setupBoard(fen f) {
         makeMove(move);
         movesMade.push_back(move);
     }
+    attackedSquares = generateAttackedSquares();
 }
 
 void Board::printBoard() {
@@ -117,35 +118,59 @@ vector< moveStruct > Board::generateKingMoves(int rank, int file) {
     vector< moveStruct > moveList;
     // Move north
     if ((isEmptySquare(rank-1, file) || isEnemy(rank-1, file)) && isLegalSquare(rank-1, file)) {
-        moveList.push_back(createMoveStruct(rank, file, rank-1, file));
+        // If found move is not an attacked square.
+        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank-1, file)) == attackedSquares.end()) {
+            moveList.push_back(createMoveStruct(rank, file, rank-1, file));
+        }
     }
     // Move north east
     if ((isEmptySquare(rank-1, file+1) || isEnemy(rank-1, file+1)) && isLegalSquare(rank-1, file+1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank-1, file+1));
+        // If found move is not an attacked square.
+        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank-1, file+1)) == attackedSquares.end()) {
+            moveList.push_back(createMoveStruct(rank, file, rank-1, file+1));
+        }
     }
     // Move east
     if ((isEmptySquare(rank, file+1) || isEnemy(rank, file+1)) && isLegalSquare(rank, file+1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank, file+1));
+        // If found move is not an attacked square.
+        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank, file+1)) == attackedSquares.end()) {
+            moveList.push_back(createMoveStruct(rank, file, rank, file+1));
+        }
     }
     // Move south east
     if ((isEmptySquare(rank+1, file+1) || isEnemy(rank+1, file+1)) && isLegalSquare(rank+1, file+1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank+1, file+1));
+        // If found move is not an attacked square.
+        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank+1, file+1)) == attackedSquares.end()) {
+            moveList.push_back(createMoveStruct(rank, file, rank+1, file+1));
+        }
     }
     // Move south
     if ((isEmptySquare(rank+1, file) || isEnemy(rank+1, file)) && isLegalSquare(rank+1, file)) {
-        moveList.push_back(createMoveStruct(rank, file, rank+1, file));
+        // If found move is not an attacked square.
+        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank+1, file)) == attackedSquares.end()) {
+            moveList.push_back(createMoveStruct(rank, file, rank+1, file));
+        }
     }
     // Move south west
     if ((isEmptySquare(rank+1, file-1) || isEnemy(rank+1, file-1)) && isLegalSquare(rank+1, file-1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank+1, file-1));
+        // If found move is not an attacked square.
+        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank+1, file-1)) == attackedSquares.end()) {
+            moveList.push_back(createMoveStruct(rank, file, rank+1, file-1));
+        }
     }
     // Move south west
     if ((isEmptySquare(rank, file-1) || isEnemy(rank, file-1)) && isLegalSquare(rank, file-1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank, file-1));
+        // If found move is not an attacked square.
+        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank, file-1)) == attackedSquares.end()) {
+            moveList.push_back(createMoveStruct(rank, file, rank, file-1));
+        }
     }
     // Move north west
     if ((isEmptySquare(rank-1, file-1) || isEnemy(rank-1, file-1)) && isLegalSquare(rank-1, file-1)) {
-        moveList.push_back(createMoveStruct(rank, file, rank-1, file-1));
+        // If found move is not an attacked square.
+        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank-1, file-1)) == attackedSquares.end()) {
+            moveList.push_back(createMoveStruct(rank, file, rank-1, file-1));
+        }
     }
 
     return moveList;
@@ -326,4 +351,221 @@ bool Board::isEnemy(int rank, int file) {
 
 bool Board::isEmptySquare(int rank, int file) {
     return p.isType(square[rank][file], p.None);
+}
+
+vector < string > Board::generateAttackedSquares() {
+    vector < string > attackedSquareList;
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            bitset<5> piece = square[rank][file];
+            if (p.isColor(piece, activeColorBits)) continue;
+
+            if (p.isType(piece, p.King)) {
+                vector < string > kingAttacks = generateKingAttacks(rank, file);
+                attackedSquareList.insert(attackedSquareList.end(), kingAttacks.begin(), kingAttacks.end());
+            } else if (p.isType(piece, p.Queen)) {
+                vector < string > queenAttacks = generateQueenAttacks(rank, file);
+                attackedSquareList.insert(attackedSquareList.end(), queenAttacks.begin(), queenAttacks.end());
+            } else if (p.isType(piece, p.Rook)) {
+                vector < string > rookAttacks = generateRookAttacks(rank, file);
+                attackedSquareList.insert(attackedSquareList.end(), rookAttacks.begin(), rookAttacks.end());
+            } else if (p.isType(piece, p.Bishop)) {
+                vector < string > bishopAttacks = generateBishopAttacks(rank, file);
+                attackedSquareList.insert(attackedSquareList.end(), bishopAttacks.begin(), bishopAttacks.end());
+            } else if (p.isType(piece, p.Knight)) {
+                vector < string > knightAttacks = generateKnightAttacks(rank, file);
+                attackedSquareList.insert(attackedSquareList.end(), knightAttacks.begin(), knightAttacks.end());
+            } else if (p.isType(piece, p.Pawn)) {
+                vector < string > pawnAttacks = generatePawnAttacks(rank, file);
+                attackedSquareList.insert(attackedSquareList.end(), pawnAttacks.begin(), pawnAttacks.end());
+            } else {
+                continue;
+            }
+        }
+    }
+
+    return attackedSquareList;
+}
+
+vector < string > Board::generateKingAttacks(int rank, int file) {
+    vector < string > attackedSquaresList;
+    // Move north
+    if (isLegalSquare(rank-1, file)) {
+        attackedSquaresList.push_back(indexToPosition(rank-1, file));
+    }
+    // Move north east
+    if (isLegalSquare(rank-1, file+1)) {
+        attackedSquaresList.push_back(indexToPosition(rank-1, file+1));
+    }
+    // Move east
+    if (isLegalSquare(rank, file+1)) {
+        attackedSquaresList.push_back(indexToPosition(rank, file+1));
+    }
+    // Move south east
+    if (isLegalSquare(rank+1, file+1)) {
+        attackedSquaresList.push_back(indexToPosition(rank+1, file+1));
+    }
+    // Move south
+    if (isLegalSquare(rank+1, file)) {
+        attackedSquaresList.push_back(indexToPosition(rank+1, file));
+    }
+    // Move south west
+    if (isLegalSquare(rank+1, file-1)) {
+        attackedSquaresList.push_back(indexToPosition(rank+1, file-1));
+    }
+    // Move south west
+    if (isLegalSquare(rank, file-1)) {
+        attackedSquaresList.push_back(indexToPosition(rank, file-1));
+    }
+    // Move north west
+    if (isLegalSquare(rank-1, file-1)) {
+        attackedSquaresList.push_back(indexToPosition(rank-1, file-1));
+    }
+
+    return attackedSquaresList;
+}
+
+vector< string > Board::generateQueenAttacks(int rank, int file) {
+    vector < string> attackedSquaresList = generateRookAttacks(rank, file);
+    vector < string> bishopAttacks = generateBishopAttacks(rank, file);
+    attackedSquaresList.insert(attackedSquaresList.end(), bishopAttacks.begin(), bishopAttacks.end());
+
+    return attackedSquaresList;
+}
+
+vector< string > Board::generateRookAttacks(int rank, int file) {
+    vector < string > attackedSquaresList;
+    for (int rankOffset = 1; rankOffset <= SquaresToEdge[rank][file].north; rankOffset++) {
+        if (!isEmptySquare(rank-rankOffset, file)) {
+            attackedSquaresList.push_back(indexToPosition(rank-rankOffset, file));
+            break;
+        }
+        attackedSquaresList.push_back(indexToPosition(rank-rankOffset, file));
+    }
+    for (int rankOffset = 1; rankOffset <= SquaresToEdge[rank][file].south; rankOffset++) {
+        if (!isEmptySquare(rank+rankOffset, file)) {
+            attackedSquaresList.push_back(indexToPosition(rank+rankOffset, file));
+            break;
+        }
+        attackedSquaresList.push_back(indexToPosition(rank+rankOffset, file));
+    }
+    for (int fileOffset = 1; fileOffset <= SquaresToEdge[rank][file].east; fileOffset++) {
+        if (!isEmptySquare(rank, file+fileOffset)) {
+            attackedSquaresList.push_back(indexToPosition(rank, file+fileOffset));
+            break;
+        }
+        attackedSquaresList.push_back(indexToPosition(rank, file+fileOffset));
+    }
+    for (int fileOffset = 1; fileOffset <= SquaresToEdge[rank][file].west; fileOffset++) {
+        if (!isEmptySquare(rank, file-fileOffset)) {
+            attackedSquaresList.push_back(indexToPosition(rank, file-fileOffset));
+            break;
+        }
+        attackedSquaresList.push_back(indexToPosition(rank, file-fileOffset));
+    }
+
+    return attackedSquaresList;
+}
+
+vector< string > Board::generateBishopAttacks(int rank, int file) {
+    vector< string > attackedSquaresList;
+    for (int offset = 1; offset <= SquaresToEdge[rank][file].northEast; offset++) {
+        if (!isEmptySquare(rank-offset, file+offset)) {
+            attackedSquaresList.push_back(indexToPosition(rank-offset, file+offset));
+            break;
+        }
+        attackedSquaresList.push_back(indexToPosition(rank-offset, file+offset));
+    }
+    for (int offset = 1; offset <= SquaresToEdge[rank][file].southEast; offset++) {
+        if (!isEmptySquare(rank+offset, file+offset)) {
+            attackedSquaresList.push_back(indexToPosition(rank+offset, file+offset));
+            break;
+        }
+        attackedSquaresList.push_back(indexToPosition(rank+offset, file+offset));
+    }
+    for (int offset = 1; offset <= SquaresToEdge[rank][file].southWest; offset++) {
+        if (!isEmptySquare(rank+offset, file-offset)) {
+            attackedSquaresList.push_back(indexToPosition(rank+offset, file-offset));
+            break;
+        }
+        attackedSquaresList.push_back(indexToPosition(rank+offset, file-offset));
+    }
+    for (int offset = 1; offset <= SquaresToEdge[rank][file].northWest; offset++) {
+        if (!isEmptySquare(rank-offset, file-offset)) {
+            attackedSquaresList.push_back(indexToPosition(rank-offset, file-offset));
+            break;
+        }
+        attackedSquaresList.push_back(indexToPosition(rank-offset, file-offset));
+    }
+
+    return attackedSquaresList;
+}
+
+vector< string > Board::generateKnightAttacks(int rank, int file) {
+    vector< string > attackedSquaresList;
+
+    if (isLegalSquare(rank+1, file+2)) {
+        attackedSquaresList.push_back(indexToPosition(rank+1, file+2));
+    }
+    if (isLegalSquare(rank+1, file-2)) {
+        attackedSquaresList.push_back(indexToPosition(rank+1, file-2));
+    }
+    if (isLegalSquare(rank-1, file+2)) {
+        attackedSquaresList.push_back(indexToPosition(rank-1, file+2));
+    }
+    if (isLegalSquare(rank-1, file-2)) {
+        attackedSquaresList.push_back(indexToPosition(rank-1, file-2));
+    }
+    if (isLegalSquare(rank+2, file+1)) {
+        attackedSquaresList.push_back(indexToPosition(rank+2, file+1));
+    }
+    if (isLegalSquare(rank+2, file-1)) {
+        attackedSquaresList.push_back(indexToPosition(rank+2, file-1));
+    }
+    if (isLegalSquare(rank-2, file+1)) {
+        attackedSquaresList.push_back(indexToPosition(rank-2, file+1));
+    }
+    if (isLegalSquare(rank-2, file-1)) {
+        attackedSquaresList.push_back(indexToPosition(rank-2, file-1));
+    }
+
+    return attackedSquaresList;
+}
+
+vector< string > Board::generatePawnAttacks(int rank, int file) {
+    vector < string > attackedSquaresList;
+    // Determine direction since Pawns can only move forward in a single direction. 
+    int rankDirection = 1;
+    if (p.isColor(activeColorBits, p.White)) {
+        rankDirection = -1;
+    }
+    // Capture
+    if (isLegalSquare(rank-1*rankDirection, file+1)) {
+        attackedSquaresList.push_back(indexToPosition(rank-1*rankDirection, file+1));
+    }
+    if (isLegalSquare(rank-1*rankDirection, file-1)) {
+        attackedSquaresList.push_back(indexToPosition(rank-1*rankDirection, file-1));
+    }
+
+    return attackedSquaresList;
+}
+
+bool Board::inCheck() {
+    string kingPos = getKingPos(activeColorBits);
+    if (find(attackedSquares.begin(), attackedSquares.end(), kingPos) != attackedSquares.end()) {
+        cout << "In check!" << endl;
+    }
+    return find(attackedSquares.begin(), attackedSquares.end(), kingPos) != attackedSquares.end();
+}
+
+string Board::getKingPos(bitset<5> color) {
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            if (square[rank][file] == (color | p.King)) {
+                cout << "King position: " << indexToPosition(rank, file) << endl;
+                return indexToPosition(rank, file);
+            }
+        }
+    }
+    return "";
 }

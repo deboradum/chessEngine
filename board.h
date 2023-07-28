@@ -30,6 +30,7 @@ namespace board {
         int halfMoves;
         int fullMoves;
         vector<string> movesMade = {};
+        vector<string> attackedSquares;
 
         vector< vector< numSquaresStruct > > SquaresToEdge = numSquaresToEdges();
 
@@ -39,14 +40,23 @@ namespace board {
 
         vector< moveStruct > generateMoves();
 
+        bool inCheck();
+    
+    private:
+        vector< string > generateAttackedSquares();
+        vector< string > generateKingAttacks(int rank, int file);
+        vector< string > generateQueenAttacks(int rank, int file);
+        vector< string > generateRookAttacks(int rank, int file);
+        vector< string > generateBishopAttacks(int rank, int file);
+        vector< string > generateKnightAttacks(int rank, int file);
+        vector< string > generatePawnAttacks(int rank, int file);
+
         vector< moveStruct > generateKingMoves(int rank, int file);
         vector< moveStruct > generateQueenMoves(int rank, int file);
         vector< moveStruct > generateRookMoves(int rank, int file);
         vector< moveStruct > generateBishopMoves(int rank, int file);
         vector< moveStruct > generateKnightMoves(int rank, int file);
         vector< moveStruct > generatePawnMoves(int rank, int file);
-    
-    private:
         // Sets up board.
         void setupBoardLayout(fen f);
         // Makes a move on the board.
@@ -55,5 +65,7 @@ namespace board {
         bool isEnemy(int rank, int file);
 
         bool isEmptySquare(int rank, int file);
+
+        string getKingPos(bitset<5> color);
     };
 }
