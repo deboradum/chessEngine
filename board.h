@@ -31,6 +31,7 @@ namespace board {
         int fullMoves;
         vector<string> movesMade = {};
         vector<string> attackedSquares;
+        vector<moveStruct> possibleMoves;
 
         vector< vector< numSquaresStruct > > SquaresToEdge = numSquaresToEdges();
 
@@ -41,6 +42,8 @@ namespace board {
         vector< moveStruct > generateMoves();
 
         bool inCheck();
+
+        string generateMove();
     
     private:
         vector< string > generateAttackedSquares();

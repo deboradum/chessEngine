@@ -49,7 +49,7 @@ void setFen(int fenIndex, fen &f, string s) {
             break;
         default:
             if (s == "moves") break;
-            if (s.length() == 4) f.movesMade.push_back(s);
+            if (s.length() == 4 || s.length() == 5) f.movesMade.push_back(s);
             break;
         }
 }

@@ -20,6 +20,7 @@ void Board::setupBoard(fen f) {
         movesMade.push_back(move);
     }
     attackedSquares = generateAttackedSquares();
+    possibleMoves = generateMoves();
 }
 
 void Board::printBoard() {
@@ -70,12 +71,22 @@ void Board::setupBoardLayout(fen f) {
 }
 
 void Board::makeMove(string move) {
-    assert(move.length() == 4);
-    string start = move.substr(0, 2);
-    string end = move.substr(2, 4);
+    // Normal move.
+    if (move.length() == 4) {
+        string start = move.substr(0, 2);
+        string end = move.substr(2, 3);
 
-    square[positionToRank(end)][positionToFile(end)] = square[positionToRank(start)][positionToFile(start)];
-    square[positionToRank(start)][positionToFile(start)] = EMPTY_SQUARE;
+        square[positionToRank(end)][positionToFile(end)] = square[positionToRank(start)][positionToFile(start)];
+        square[positionToRank(start)][positionToFile(start)] = EMPTY_SQUARE;
+    // In case of pawn promotion.
+    } else if (move.length() == 5) {
+        string start = move.substr(0, 2);
+        string end = move.substr(2, 2);
+        char promotedTo = move[4];
+
+        square[positionToRank(start)][positionToFile(start)] = EMPTY_SQUARE;
+        setPiece(positionToRank(end), positionToFile(end), promotedTo, square);
+    }
 
     return;
 }
@@ -85,6 +96,7 @@ vector< moveStruct > Board::generateMoves() {
     for (int rank = 0; rank < 8; rank++) {
         for (int file = 0; file < 8; file++) {
             bitset<5> piece = square[rank][file];
+
             if (!p.isColor(piece, activeColorBits)) continue;
 
             if (p.isType(piece, p.King)) {
@@ -117,56 +129,55 @@ vector< moveStruct > Board::generateMoves() {
 vector< moveStruct > Board::generateKingMoves(int rank, int file) {
     vector< moveStruct > moveList;
     // Move north
-    if ((isEmptySquare(rank-1, file) || isEnemy(rank-1, file)) && isLegalSquare(rank-1, file)) {
+    if (isLegalSquare(rank-1, file) && (isEmptySquare(rank-1, file) || isEnemy(rank-1, file))) {
         // If found move is not an attacked square.
         if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank-1, file)) == attackedSquares.end()) {
             moveList.push_back(createMoveStruct(rank, file, rank-1, file));
         }
     }
     // Move north east
-    if ((isEmptySquare(rank-1, file+1) || isEnemy(rank-1, file+1)) && isLegalSquare(rank-1, file+1)) {
+    if (isLegalSquare(rank-1, file+1) && (isEmptySquare(rank-1, file+1) || isEnemy(rank-1, file+1))) {
         // If found move is not an attacked square.
         if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank-1, file+1)) == attackedSquares.end()) {
             moveList.push_back(createMoveStruct(rank, file, rank-1, file+1));
         }
     }
     // Move east
-    if ((isEmptySquare(rank, file+1) || isEnemy(rank, file+1)) && isLegalSquare(rank, file+1)) {
+    if (isLegalSquare(rank, file+1) && (isEmptySquare(rank, file+1) || isEnemy(rank, file+1))) {
         // If found move is not an attacked square.
         if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank, file+1)) == attackedSquares.end()) {
             moveList.push_back(createMoveStruct(rank, file, rank, file+1));
         }
     }
-    // Move south east
-    if ((isEmptySquare(rank+1, file+1) || isEnemy(rank+1, file+1)) && isLegalSquare(rank+1, file+1)) {
+    if (isLegalSquare(rank+1, file+1) && (isEmptySquare(rank+1, file+1) || isEnemy(rank+1, file+1))) {
         // If found move is not an attacked square.
         if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank+1, file+1)) == attackedSquares.end()) {
             moveList.push_back(createMoveStruct(rank, file, rank+1, file+1));
         }
     }
     // Move south
-    if ((isEmptySquare(rank+1, file) || isEnemy(rank+1, file)) && isLegalSquare(rank+1, file)) {
+    if (isLegalSquare(rank+1, file) && (isEmptySquare(rank+1, file) || isEnemy(rank+1, file))) {
         // If found move is not an attacked square.
         if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank+1, file)) == attackedSquares.end()) {
             moveList.push_back(createMoveStruct(rank, file, rank+1, file));
         }
     }
     // Move south west
-    if ((isEmptySquare(rank+1, file-1) || isEnemy(rank+1, file-1)) && isLegalSquare(rank+1, file-1)) {
+    if (isLegalSquare(rank+1, file-1) && (isEmptySquare(rank+1, file-1) || isEnemy(rank+1, file-1))) {
         // If found move is not an attacked square.
         if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank+1, file-1)) == attackedSquares.end()) {
             moveList.push_back(createMoveStruct(rank, file, rank+1, file-1));
         }
     }
     // Move south west
-    if ((isEmptySquare(rank, file-1) || isEnemy(rank, file-1)) && isLegalSquare(rank, file-1)) {
+    if (isLegalSquare(rank, file-1) && (isEmptySquare(rank, file-1) || isEnemy(rank, file-1))) {
         // If found move is not an attacked square.
         if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank, file-1)) == attackedSquares.end()) {
             moveList.push_back(createMoveStruct(rank, file, rank, file-1));
         }
     }
     // Move north west
-    if ((isEmptySquare(rank-1, file-1) || isEnemy(rank-1, file-1)) && isLegalSquare(rank-1, file-1)) {
+    if (isLegalSquare(rank-1, file-1) && (isEmptySquare(rank-1, file-1) || isEnemy(rank-1, file-1))) {
         // If found move is not an attacked square.
         if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank-1, file-1)) == attackedSquares.end()) {
             moveList.push_back(createMoveStruct(rank, file, rank-1, file-1));
@@ -568,4 +579,16 @@ string Board::getKingPos(bitset<5> color) {
         }
     }
     return "";
+}
+
+string Board::generateMove() {
+    if (!possibleMoves.size()) {
+        return "XX";
+    }; // No moves should not be possible I dont think
+
+    int randomIndex = rand() % possibleMoves.size();
+    moveStruct m = possibleMoves[randomIndex];
+    string move = moveStructToMoveString(m);
+
+    return move;
 }

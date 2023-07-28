@@ -46,26 +46,14 @@ int main()
                 // b.printBoard();
             }
             if (msg.rfind("go", 0) == 0) {
-                vector< moveStruct > moveList = b.generateMoves();
-                if (!moveList.size()) {
-                    cout << "No moves found" << endl;
-                    continue;
-                }; // No moves should nmot be possible I dont think
-                printMoveList(moveList);
+                printMoveList(b.possibleMoves);
                 cout << endl << "Attacked Squares: ";
                 for (string a : b.attackedSquares) {
                     cout << a << " ";
                 }
                 cout << endl;
 
-                if (b.inCheck()) {
-                    
-                }
-
-                int randomIndex = rand() % moveList.size();
-                moveStruct m = moveList[randomIndex];
-                string move = moveStructToMoveString(m);
-                cout << "bestmove " << move << endl;
+                cout << "bestmove " << b.generateMove() << endl;
             }
             else {
                 // cout << msg << endl;
