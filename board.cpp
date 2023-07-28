@@ -16,6 +16,12 @@ using namespace board;
 void Board::setupBoard(fen f) {
     setupBoardLayout(f);
     for (string move : f.movesMade) {
+        if (!move.substr(0, 2).compare("a8") && p.isColor(activeColorBits, p.Black) || 
+            !move.substr(0, 2).compare("a1") && p.isColor(activeColorBits, p.White)) qRookMoved = true;
+        if (!move.substr(0, 2).compare("h8") && p.isColor(activeColorBits, p.Black) || 
+            !move.substr(0, 2).compare("h1") && p.isColor(activeColorBits, p.White)) kRookMoved = true;
+        if (!move.substr(0, 2).compare("e8") && p.isColor(activeColorBits, p.Black) || 
+            !move.substr(0, 2).compare("e1") && p.isColor(activeColorBits, p.White)) kingMoved = true;
         makeMove(move);
         movesMade.push_back(move);
     }
@@ -126,22 +132,87 @@ vector< moveStruct > Board::generateMoves() {
             }
         }
     }
-    vector < moveStruct> castlingMoves = generateCastlingMoves();
-    moveList.insert(moveList.end(), castlingMoves.begin(), castlingMoves.end());
+    if (castlingRights != "-") {
+        vector < moveStruct> castlingMoves = generateCastlingMoves();
+        moveList.insert(moveList.end(), castlingMoves.begin(), castlingMoves.end());
+    } else {
+        cout << "No castling available!"<< endl;
+    }
 
     return moveList;
 }
 
 vector< moveStruct > Board::generateCastlingMoves() {
-    vector< moveStruct > moveList;
-
-    if (castlingRights == "-") {
-        cout << "No one can castle!" << endl;
+    cout << "Castling available: " << castlingRights << endl;
+    if (p.isColor(activeColorBits, p.White)) {
+        return generateCastlingMovesW();
     } else {
-        cout << "Castling available: " << castlingRights << endl;
+        return generateCastlingMovesB();
+    }
+}
+
+vector< moveStruct > Board::generateCastlingMovesW() {
+    vector< moveStruct > moveList;
+    if (castlingRights.find("Q") != string::npos && queenCastleLegalW()) {
+        moveList.push_back(createMoveStruct(7, 4, 7, 2));
+    }
+    if (castlingRights.find("K") != string::npos && kingCastleLegalW()) {
+        moveList.push_back(createMoveStruct(7, 4, 7, 6));
     }
 
     return moveList;
+}
+
+vector< moveStruct > Board::generateCastlingMovesB() {
+    vector< moveStruct > moveList;
+    if (castlingRights.find("q") != string::npos && queenCastleLegalB()) {
+        moveList.push_back(createMoveStruct(0, 4, 0, 2));
+    }
+    if (castlingRights.find("k") != string::npos && kingCastleLegalB()) {
+        moveList.push_back(createMoveStruct(0, 4, 0, 6));
+    }
+
+    return moveList;
+}
+
+bool Board::kingCastleLegalW() {
+    if (kingMoved) return false;
+    if (kRookMoved) return false;
+    if (square[7][7] != (p.White | p.Rook)) return false;
+    if (!p.isType(square[7][6], p.None) || !p.isType(square[7][5], p.None)) return false;
+    if (isPositionAttacked(7, 6) || isPositionAttacked(7, 5)) return false;
+
+    return true;
+}
+
+bool Board::queenCastleLegalW() {
+    if (kingMoved) return false;
+    if (kRookMoved) return false;
+    if (square[7][0] != (p.White | p.Rook)) return false;
+    if (!p.isType(square[7][1], p.None) || !p.isType(square[7][2], p.None) || !p.isType(square[7][3], p.None)) return false;
+    if (isPositionAttacked(7, 1) || isPositionAttacked(7, 2) || isPositionAttacked(7, 3)) return false;
+
+    return true;
+}
+
+bool Board::kingCastleLegalB() {
+    if (kingMoved) return false;
+    if (kRookMoved) return false;
+    if (square[0][7] != (p.White | p.Rook)) return false;
+    if (!p.isType(square[0][6], p.None) || !p.isType(square[0][5], p.None)) return false;
+    if (isPositionAttacked(0, 6) || isPositionAttacked(0, 5)) return false;
+
+    return true;
+}
+
+bool Board::queenCastleLegalB() {
+    if (kingMoved) return false;
+    if (kRookMoved) return false;
+    if (square[0][0] != (p.White | p.Rook)) return false;
+    if (!p.isType(square[0][1], p.None) || !p.isType(square[0][2], p.None) || !p.isType(square[0][3], p.None)) return false;
+    if (isPositionAttacked(0, 1) || isPositionAttacked(0, 2) || isPositionAttacked(0, 3)) return false;
+
+    return true;
 }
 
 vector< moveStruct > Board::generateKingMoves(int rank, int file) {
@@ -149,55 +220,55 @@ vector< moveStruct > Board::generateKingMoves(int rank, int file) {
     // Move north
     if (isLegalSquare(rank-1, file) && (isEmptySquare(rank-1, file) || isEnemy(rank-1, file))) {
         // If found move is not an attacked square.
-        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank-1, file)) == attackedSquares.end()) {
+        if (!isPositionAttacked(rank-1, file)) {
             moveList.push_back(createMoveStruct(rank, file, rank-1, file));
         }
     }
     // Move north east
     if (isLegalSquare(rank-1, file+1) && (isEmptySquare(rank-1, file+1) || isEnemy(rank-1, file+1))) {
         // If found move is not an attacked square.
-        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank-1, file+1)) == attackedSquares.end()) {
+        if (!isPositionAttacked(rank-1, file+1)) {
             moveList.push_back(createMoveStruct(rank, file, rank-1, file+1));
         }
     }
     // Move east
     if (isLegalSquare(rank, file+1) && (isEmptySquare(rank, file+1) || isEnemy(rank, file+1))) {
         // If found move is not an attacked square.
-        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank, file+1)) == attackedSquares.end()) {
+        if (!isPositionAttacked(rank, file+1)) {
             moveList.push_back(createMoveStruct(rank, file, rank, file+1));
         }
     }
     if (isLegalSquare(rank+1, file+1) && (isEmptySquare(rank+1, file+1) || isEnemy(rank+1, file+1))) {
         // If found move is not an attacked square.
-        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank+1, file+1)) == attackedSquares.end()) {
+        if (!isPositionAttacked(rank+1, file+1)) {
             moveList.push_back(createMoveStruct(rank, file, rank+1, file+1));
         }
     }
     // Move south
     if (isLegalSquare(rank+1, file) && (isEmptySquare(rank+1, file) || isEnemy(rank+1, file))) {
         // If found move is not an attacked square.
-        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank+1, file)) == attackedSquares.end()) {
+        if (!isPositionAttacked(rank+1, file)) {
             moveList.push_back(createMoveStruct(rank, file, rank+1, file));
         }
     }
     // Move south west
     if (isLegalSquare(rank+1, file-1) && (isEmptySquare(rank+1, file-1) || isEnemy(rank+1, file-1))) {
         // If found move is not an attacked square.
-        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank+1, file-1)) == attackedSquares.end()) {
+        if (!isPositionAttacked(rank+1, file-1)) {
             moveList.push_back(createMoveStruct(rank, file, rank+1, file-1));
         }
     }
     // Move south west
     if (isLegalSquare(rank, file-1) && (isEmptySquare(rank, file-1) || isEnemy(rank, file-1))) {
         // If found move is not an attacked square.
-        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank, file-1)) == attackedSquares.end()) {
+        if (!isPositionAttacked(rank, file-1)) {
             moveList.push_back(createMoveStruct(rank, file, rank, file-1));
         }
     }
     // Move north west
     if (isLegalSquare(rank-1, file-1) && (isEmptySquare(rank-1, file-1) || isEnemy(rank-1, file-1))) {
         // If found move is not an attacked square.
-        if (find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank-1, file-1)) == attackedSquares.end()) {
+        if (!isPositionAttacked(rank-1, file-1)) {
             moveList.push_back(createMoveStruct(rank, file, rank-1, file-1));
         }
     }
@@ -405,6 +476,10 @@ bool Board::isEnemy(int rank, int file) {
 
 bool Board::isEmptySquare(int rank, int file) {
     return p.isType(square[rank][file], p.None);
+}
+
+bool Board::isPositionAttacked(int rank, int file) {
+    return find(attackedSquares.begin(), attackedSquares.end(), indexToPosition(rank, file)) != attackedSquares.end();
 }
 
 vector < string > Board::generateAttackedSquares() {

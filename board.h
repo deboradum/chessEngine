@@ -58,6 +58,7 @@ namespace board {
         vector< string > generateBishopAttacks(int rank, int file);
         vector< string > generateKnightAttacks(int rank, int file);
         vector< string > generatePawnAttacks(int rank, int file);
+        bool isPositionAttacked(int rank, int file);
 
         vector< moveStruct > generateKingMoves(int rank, int file);
         vector< moveStruct > generateQueenMoves(int rank, int file);
@@ -67,6 +68,13 @@ namespace board {
         vector< moveStruct > generatePawnMoves(int rank, int file);
         vector< moveStruct > addPromotionOptions(int beginRank, int beginFile, int endRank, int endFile);
         vector< moveStruct > generateCastlingMoves();
+        vector< moveStruct > generateCastlingMovesW();
+        vector< moveStruct > generateCastlingMovesB();
+        bool kingCastleLegalW();
+        bool queenCastleLegalW();
+        bool kingCastleLegalB();
+        bool queenCastleLegalB();
+
         // Sets up board.
         void setupBoardLayout(fen f);
         // Makes a move on the board.
