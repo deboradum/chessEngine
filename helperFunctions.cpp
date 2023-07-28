@@ -224,3 +224,7 @@ moveStruct createMoveStruct(int beginRank, int beginFile, int endRank, int endFi
 
     return m;
 }
+
+bool isLegalSquare(int rank, int file) {
+    return (0 <= rank && rank <= 7) && (0 <= file && file <= 7);
+}

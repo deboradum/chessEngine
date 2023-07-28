@@ -50,8 +50,10 @@ int main()
                 if (!moveList.size()) {
                     cout << "No moves found" << endl;
                     continue;
-                }; // tmp
+                }; // No moves should nmot be possible I dont think
                 // printMoveList(moveList);
+                // cout << endl;
+
                 int randomIndex = rand() % moveList.size();
                 moveStruct m = moveList[randomIndex];
                 string move = moveStructToMoveString(m);

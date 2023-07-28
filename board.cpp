@@ -115,54 +115,37 @@ vector< moveStruct > Board::generateMoves() {
 vector< moveStruct > Board::generateKingMoves(int rank, int file) {
     vector< moveStruct > moveList;
     // Move north
-    if (rank != 0) {
-        if (p.isType(square[rank-1][file], p.None) || !p.isColor(square[rank-1][file], activeColorBits)) {
-            moveList.push_back(createMoveStruct(rank, file, rank+1, file));   
-        }
+    if ((isEmptySquare(rank-1, file) || isEnemy(rank-1, file)) && isLegalSquare(rank-1, file)) {
+        moveList.push_back(createMoveStruct(rank, file, rank-1, file));   
     }
     // Move north east
-    if (rank != 0 && file != 7) {
-        if (p.isType(square[rank-1][file+1], p.None) || !p.isColor(square[rank-1][file+1], activeColorBits)) {
-            moveList.push_back(createMoveStruct(rank, file, rank-1, file+1));   
-        }
+    if ((isEmptySquare(rank-1, file+1) || isEnemy(rank-1, file+1)) && isLegalSquare(rank-1, file+1)) {
+        moveList.push_back(createMoveStruct(rank, file, rank-1, file+1));   
     }
     // Move east
-    if (file != 7) {
-        if (p.isType(square[rank][file+1], p.None) || !p.isColor(square[rank][file+1], activeColorBits)) {
-            moveList.push_back(createMoveStruct(rank, file, rank, file+1));   
-        }
+    if ((isEmptySquare(rank, file+1) || isEnemy(rank, file+1)) && isLegalSquare(rank, file+1)) {
+        moveList.push_back(createMoveStruct(rank, file, rank, file+1));   
     }
     // Move south east
-    if (rank != 7 && file != 7) {
-        if (p.isType(square[rank+1][file+1], p.None) || !p.isColor(square[rank+1][file+1], activeColorBits)) {
-            moveList.push_back(createMoveStruct(rank, file, rank+1, file+1));   
-        }
+    if ((isEmptySquare(rank+1, file+1) || isEnemy(rank+1, file+1)) && isLegalSquare(rank+1, file+1)) {
+        moveList.push_back(createMoveStruct(rank, file, rank+1, file+1));   
     }
     // Move south
-    if (rank != 7 && p.isType(square[rank+1][file], p.None)) {
-        if (p.isType(square[rank+1][file], p.None) || !p.isColor(square[rank+1][file], activeColorBits)) {
-            moveList.push_back(createMoveStruct(rank, file, rank+1, file));   
-        }
+    if ((isEmptySquare(rank+1, file) || isEnemy(rank+1, file)) && isLegalSquare(rank+1, file)) {
+        moveList.push_back(createMoveStruct(rank, file, rank+1, file));   
     }
     // Move south west
-    if (rank != 7 && file != 0) {
-        if (p.isType(square[rank+1][file-1], p.None) || !p.isColor(square[rank+1][file-1], activeColorBits)) {
-            moveList.push_back(createMoveStruct(rank, file, rank+1, file-1));   
-        }
+    if ((isEmptySquare(rank+1, file-1) || isEnemy(rank+1, file-1)) && isLegalSquare(rank+1, file-1)) {
+        moveList.push_back(createMoveStruct(rank, file, rank+1, file-1));   
     }
     // Move south west
-    if (file != 0) {
-        if (p.isType(square[rank][file-1], p.None) || !p.isColor(square[rank][file-1], activeColorBits)) {
-            moveList.push_back(createMoveStruct(rank, file, rank, file-1));   
-        }
+    if ((isEmptySquare(rank, file-1) || isEnemy(rank, file-1)) && isLegalSquare(rank, file-1)) {
+        moveList.push_back(createMoveStruct(rank, file, rank, file-1));   
     }
     // Move north west
-    if (rank != 0 && file != 0) {
-        if (p.isType(square[rank-1][file-1], p.None) || !p.isColor(square[rank-1][file-1], activeColorBits)) {
-            moveList.push_back(createMoveStruct(rank, file, rank-1, file-1));   
-        }
+    if ((isEmptySquare(rank-1, file-1) || isEnemy(rank-1, file-1)) && isLegalSquare(rank-1, file-1)) {
+        moveList.push_back(createMoveStruct(rank, file, rank-1, file-1));   
     }
-
 
     return moveList;
 }
@@ -170,9 +153,8 @@ vector< moveStruct > Board::generateKingMoves(int rank, int file) {
 vector< moveStruct > Board::generateRookMoves(int rank, int file) {
     vector< moveStruct > moveList;
     for (int rankOffset = 1; rankOffset <= SquaresToEdge[rank][file].north; rankOffset++) {
-        if (!p.isType(square[rank-rankOffset][file], p.None)) {
-            // Check if same color, if not, add capture to move list and break, else break.
-            if (!p.isColor(square[rank-rankOffset][file], activeColorBits)) {
+        if (!isEmptySquare(rank-rankOffset, file)) {
+            if (isEnemy(rank-rankOffset, file)) {
                 moveList.push_back(createMoveStruct(rank, file, rank-rankOffset, file));
             }
             break;
@@ -180,9 +162,8 @@ vector< moveStruct > Board::generateRookMoves(int rank, int file) {
         moveList.push_back(createMoveStruct(rank, file, rank-rankOffset, file));
     }
     for (int rankOffset = 1; rankOffset <= SquaresToEdge[rank][file].south; rankOffset++) {
-        if (!p.isType(square[rank+rankOffset][file], p.None)) {
-            // Check if same color, if not, add capture to move list and break, else break.
-            if (!p.isColor(square[rank+rankOffset][file], activeColorBits)) {
+        if (!isEmptySquare(rank+rankOffset, file)) {
+            if (isEnemy(rank+rankOffset, file)) {
                 moveList.push_back(createMoveStruct(rank, file, rank+rankOffset, file));
             }
             break;
@@ -190,9 +171,8 @@ vector< moveStruct > Board::generateRookMoves(int rank, int file) {
         moveList.push_back(createMoveStruct(rank, file, rank+rankOffset, file));
     }
     for (int fileOffset = 1; fileOffset <= SquaresToEdge[rank][file].east; fileOffset++) {
-        if (!p.isType(square[rank][file+fileOffset], p.None)) {
-            // Check if same color, if not, add capture to move list and break, else break.
-            if (!p.isColor(square[rank][file+fileOffset], activeColorBits)) {
+        if (!isEmptySquare(rank, file+fileOffset)) {
+            if (isEnemy(rank, file+fileOffset)) {
                 moveList.push_back(createMoveStruct(rank, file, rank, file+fileOffset));
             }
             break;
@@ -200,12 +180,10 @@ vector< moveStruct > Board::generateRookMoves(int rank, int file) {
         moveList.push_back(createMoveStruct(rank, file, rank, file+fileOffset));
     }
     for (int fileOffset = 1; fileOffset <= SquaresToEdge[rank][file].west; fileOffset++) {
-        if (!p.isType(square[rank][file-fileOffset], p.None)) {
-            // Check if same color, if not, add capture to move list and break, else break.
-            if (!p.isColor(square[rank][file-fileOffset], activeColorBits)) {
+        if (!isEmptySquare(rank, file-fileOffset)) {
+            if (isEnemy(rank, file-fileOffset)) {
                 moveList.push_back(createMoveStruct(rank, file, rank, file-fileOffset));
             }
-
             break;
         }
         moveList.push_back(createMoveStruct(rank, file, rank, file-fileOffset));
@@ -217,8 +195,8 @@ vector< moveStruct > Board::generateRookMoves(int rank, int file) {
 vector< moveStruct > Board::generateBishopMoves(int rank, int file) {
     vector< moveStruct > moveList;
     for (int offset = 1; offset <= SquaresToEdge[rank][file].northEast; offset++) {
-        if (!p.isType(square[rank-offset][file+offset], p.None)) {
-            if (!p.isColor(square[rank-offset][file+offset], activeColorBits)) {
+        if (!isEmptySquare(rank-offset, file+offset)) {
+            if (isEnemy(rank-offset, file+offset)) {
                 moveList.push_back(createMoveStruct(rank, file, rank-offset, file+offset));
             }
             break;
@@ -226,8 +204,8 @@ vector< moveStruct > Board::generateBishopMoves(int rank, int file) {
         moveList.push_back(createMoveStruct(rank, file, rank-offset, file+offset));
     }
     for (int offset = 1; offset <= SquaresToEdge[rank][file].southEast; offset++) {
-        if (!p.isType(square[rank+offset][file+offset], p.None)) {
-            if (!p.isColor(square[rank+offset][file+offset], activeColorBits)) {
+        if (!isEmptySquare(rank+offset, file+offset)) {
+            if (isEnemy(rank+offset, file+offset)) {
                 moveList.push_back(createMoveStruct(rank, file, rank+offset, file+offset));
             }
             break;
@@ -235,8 +213,8 @@ vector< moveStruct > Board::generateBishopMoves(int rank, int file) {
         moveList.push_back(createMoveStruct(rank, file, rank+offset, file+offset));
     }
     for (int offset = 1; offset <= SquaresToEdge[rank][file].southWest; offset++) {
-        if (!p.isType(square[rank+offset][file-offset], p.None)) {
-            if (!p.isColor(square[rank+offset][file-offset], activeColorBits)) {
+        if (!isEmptySquare(rank+offset, file-offset)) {
+            if (isEnemy(rank+offset, file-offset)) {
                 moveList.push_back(createMoveStruct(rank, file, rank+offset, file-offset));
             }
             break;
@@ -244,14 +222,20 @@ vector< moveStruct > Board::generateBishopMoves(int rank, int file) {
         moveList.push_back(createMoveStruct(rank, file, rank+offset, file-offset));
     }
     for (int offset = 1; offset <= SquaresToEdge[rank][file].northWest; offset++) {
-        if (!p.isType(square[rank-offset][file-offset], p.None)) {
-            if (!p.isColor(square[rank-offset][file-offset], activeColorBits)) {
+        if (!isEmptySquare(rank-offset, file-offset)) {
+            if (isEnemy(rank-offset, file-offset)) {
                 moveList.push_back(createMoveStruct(rank, file, rank-offset, file-offset));
             }
             break;
         }
         moveList.push_back(createMoveStruct(rank, file, rank-offset, file-offset));
     }
+
+    return moveList;
+}
+
+vector< moveStruct > Board::generateKnightMoves(int rank, int file) {
+    vector< moveStruct > moveList;
 
     return moveList;
 }
@@ -274,30 +258,26 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
     }
 
     // Single step
-    if (p.isType(square[rank-1*rankDirection][file], p.None)) {
+    if (isEmptySquare(rank-1*rankDirection, file)) {
         moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file));
     }
 
     // Two step first move
     if (p.isColor(activeColorBits, p.White)) {
-        if (rank == 6) {
-            if (p.isType(square[rank-2*rankDirection][file], p.None)) {
-                moveList.push_back(createMoveStruct(rank, file, rank-2*rankDirection, file));
-            }  
-        }
+        if (rank == 6 && isEmptySquare(rank-2*rankDirection, file) && isEmptySquare(rank-1*rankDirection, file)) {
+            moveList.push_back(createMoveStruct(rank, file, rank-2*rankDirection, file));
+        }  
     } else if (p.isColor(activeColorBits, p.Black)) {
-        if (rank == 1) {
-            if (p.isType(square[rank-2*rankDirection][file], p.None)) {
-                moveList.push_back(createMoveStruct(rank, file, rank-2*rankDirection, file));
-            }  
+        if (rank == 1 && isEmptySquare(rank-2*rankDirection, file) && isEmptySquare(rank-1*rankDirection, file)) {
+            moveList.push_back(createMoveStruct(rank, file, rank-2*rankDirection, file));
         }
     }
 
     // Capture
-    if (file < 8 && !p.isType(square[rank-1*rankDirection][file+1], p.None) && !p.isColor(square[rank-1*rankDirection][file+1], activeColorBits)) {
+    if (isLegalSquare(rank-1*rankDirection, file+1) && !isEmptySquare(rank-1*rankDirection, file+1) && isEnemy(rank-1*rankDirection, file+1)) {
         moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file+1));
     }
-    if (file > 0 && !p.isType(square[rank-1*rankDirection][file-1], p.None) && !p.isColor(square[rank-1*rankDirection][file-1], activeColorBits)) {
+    if (isLegalSquare(rank-1*rankDirection, file-1) && !isEmptySquare(rank-1*rankDirection, file-1) && isEnemy(rank-1*rankDirection, file-1)) {
         moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file-1));
     }
 
@@ -312,4 +292,12 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file) {
     }
 
     return moveList;
+}
+
+bool Board::isEnemy(int rank, int file) {
+    return !p.isColor(square[rank][file], activeColorBits);
+}
+
+bool Board::isEmptySquare(int rank, int file) {
+    return p.isType(square[rank][file], p.None);
 }

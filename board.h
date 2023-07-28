@@ -43,6 +43,7 @@ namespace board {
         vector< moveStruct > generateQueenMoves(int rank, int file);
         vector< moveStruct > generateRookMoves(int rank, int file);
         vector< moveStruct > generateBishopMoves(int rank, int file);
+        vector< moveStruct > generateKnightMoves(int rank, int file);
         vector< moveStruct > generatePawnMoves(int rank, int file);
     
     private:
@@ -50,5 +51,9 @@ namespace board {
         void setupBoardLayout(fen f);
         // Makes a move on the board.
         void makeMove(string move);
+
+        bool isEnemy(int rank, int file);
+
+        bool isEmptySquare(int rank, int file);
     };
 }

@@ -48,3 +48,5 @@ moveStruct createMoveStruct(int beginRank, int beginFile, int endRank, int endFi
 string moveStructToMoveString(moveStruct m);
 
 void printMoveList(vector< moveStruct > moveList);
+
+bool isLegalSquare(int rank, int file);
