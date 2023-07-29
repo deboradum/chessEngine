@@ -91,6 +91,12 @@ namespace board {
         // f: A fen struct containing all neccesary information about the position.
         void setupBoardLayout(string piecePlacement);
 
+        void setupBoardFen(fen f);
+
+        void setupBoardMoves(fen f);
+
+        void setupBoardAttackInfo();
+
         // Finds all squares that are currently attacked by the enemy.
         // Returns a vector containing all the squares that are attacked.
         vector< string > generateAttackedSquares();

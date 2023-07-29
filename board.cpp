@@ -21,29 +21,9 @@ void Board::setupBoard(fen f) {
     auto start = high_resolution_clock::now();
 
     setupBoardLayout(f.piecePlacement);
-    activeColor = f.activeColor;
-    if (!activeColor.compare("w")) {
-        activeColorBits = p.White;
-    } else {
-        activeColorBits = p.Black;
-    }
-    castlingRights = f.castlingRights;
-    enPassantTargets = f.enPassantTargets;
-    fullMoves = f.fullMoves;
-    halfMoves = f.halfMoves;
-    movesMade = {};
-    for (string move : f.movesMade) {
-        if (!move.substr(0, 2).compare("a8") && p.isColor(activeColorBits, p.Black) ||
-            !move.substr(0, 2).compare("a1") && p.isColor(activeColorBits, p.White)) qRookMoved = true;
-        if (!move.substr(0, 2).compare("h8") && p.isColor(activeColorBits, p.Black) ||
-            !move.substr(0, 2).compare("h1") && p.isColor(activeColorBits, p.White)) kRookMoved = true;
-        if (!move.substr(0, 2).compare("e8") && p.isColor(activeColorBits, p.Black) ||
-            !move.substr(0, 2).compare("e1") && p.isColor(activeColorBits, p.White)) kingMoved = true;
-        makeMove(move);
-        movesMade.push_back(move);
-    }
-    attackedSquares = generateAttackedSquares();
-    generateKingAttackLines();
+    setupBoardFen(f);
+    setupBoardMoves(f);
+    setupBoardAttackInfo();
     legalMoves = generateMoves();
 
     auto stop = high_resolution_clock::now();
@@ -90,6 +70,38 @@ void Board::setupBoardLayout(string piecePlacement) {
         }
         rank++;
     }
+}
+
+void Board::setupBoardFen(fen f) {
+    activeColor = f.activeColor;
+    if (!activeColor.compare("w")) {
+        activeColorBits = p.White;
+    } else {
+        activeColorBits = p.Black;
+    }
+    castlingRights = f.castlingRights;
+    enPassantTargets = f.enPassantTargets;
+}
+
+void Board::setupBoardMoves(fen f) {
+    fullMoves = f.fullMoves;
+    halfMoves = f.halfMoves;
+    movesMade = {};
+    for (string move : f.movesMade) {
+        if (!move.substr(0, 2).compare("a8") && p.isColor(activeColorBits, p.Black) ||
+            !move.substr(0, 2).compare("a1") && p.isColor(activeColorBits, p.White)) qRookMoved = true;
+        if (!move.substr(0, 2).compare("h8") && p.isColor(activeColorBits, p.Black) ||
+            !move.substr(0, 2).compare("h1") && p.isColor(activeColorBits, p.White)) kRookMoved = true;
+        if (!move.substr(0, 2).compare("e8") && p.isColor(activeColorBits, p.Black) ||
+            !move.substr(0, 2).compare("e1") && p.isColor(activeColorBits, p.White)) kingMoved = true;
+        makeMove(move);
+        movesMade.push_back(move);
+    }
+}
+
+void Board::setupBoardAttackInfo() {
+    attackedSquares = generateAttackedSquares();
+    generateKingAttackLines();
 }
 
 void Board::makeMove(string move) {
@@ -173,16 +185,16 @@ vector< moveStruct > Board::generateMoves() {
     // or king movement into the line of sight of a sliding piece.
     // Need to fix later when speed is an issue, but for now it works.
     if (inCheck()) {
-        cout << "Performing checks" << endl;
+        // cout << "Performing checks" << endl;
         vector < moveStruct> correctMoves;
         vector < vector < bitset <5> > > boardCopy(square);
         for (moveStruct move : moveList) {
-            cout << "Checking move: " << moveStructToMoveString(move) << endl;
+            // cout << "Checking move: " << moveStructToMoveString(move) << endl;
             makeMove(moveStructToMoveString(move));
             attackedSquares = generateAttackedSquares();
             // generateKingAttackLines();
             if (!inCheck())  {
-                cout << "Move: " << moveStructToMoveString(move) << "is legal" << endl;
+                // cout << "Move: " << moveStructToMoveString(move) << "is legal" << endl;
                 correctMoves.push_back(move);
             }
             square = boardCopy;
