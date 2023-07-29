@@ -47,6 +47,7 @@ int main()
                 // b.printBoard();
             }
             if (msg.rfind("go", 0) == 0) {
+                cout << "Legal moves: ";
                 printMoveList(b.legalMoves);
                 cout << endl;
                 // cout << "Attacked Squares: ";
