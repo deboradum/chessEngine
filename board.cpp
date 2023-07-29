@@ -9,6 +9,7 @@
 #include <string>
 #include <bitset>
 #include <cstddef>
+#include <tuple>
 
 #include <chrono>
 using namespace std::chrono;
@@ -170,11 +171,26 @@ void Board::generateKingAttackLines() {
     string kingPos = getKingPos(activeColorBits);
     int kingRank = positionToRank(kingPos);
     int kingFile = positionToFile(kingPos);
+    if (inCheck()) isKingAttackLine[kingRank][kingFile] = true;
     numSquaresStruct s2e = SquaresToEdge[kingRank][kingFile];
-    isKingAttackLine[kingRank][kingFile] = true;
     setVerticalAttackInfo(kingRank, kingFile, s2e);
     setHorizontalAttackInfo(kingRank, kingFile, s2e);
     setDiagonalAttackInfo(kingRank, kingFile, s2e);
+    // Prints attack & pin lines for debugging.
+    // cout << endl;
+    // for (vector <bool> line : isKingAttackLine ) {
+    //     for (bool b : line) {
+    //         cout << b << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // cout << endl;
+    // for (vector <bool> line : isKingPinnedLine ) {
+    //     for (bool b : line) {
+    //         cout << b << " ";
+    //     }
+    //     cout << endl;
+    // }
 }
 
 void Board::setVerticalAttackInfo(int rank, int file, numSquaresStruct s2e) {
@@ -184,7 +200,8 @@ void Board::setVerticalAttackInfo(int rank, int file, numSquaresStruct s2e) {
             if (friendlyPieceFound) break;
             friendlyPieceFound = true;
         }
-        if (isEnemy(rank-rankOffset, file) && !isEmptySquare(rank-rankOffset, file)) {
+        if (isEnemy(rank-rankOffset, file) && !isEmptySquare(rank-rankOffset, file) &&
+            (p.isType(square[rank-rankOffset][file], p.Rook) || p.isType(square[rank-rankOffset][file], p.Queen))) {
             if (friendlyPieceFound) {
                 for (int rankOffset2 = 1; rankOffset2 <= rankOffset; rankOffset2++) {
                     isKingPinnedLine[rank-rankOffset2][file] = true;
@@ -204,7 +221,8 @@ void Board::setVerticalAttackInfo(int rank, int file, numSquaresStruct s2e) {
             if (friendlyPieceFound) break;
             friendlyPieceFound = true;
         }
-        if (isEnemy(rank+rankOffset, file) && !isEmptySquare(rank+rankOffset, file)) {
+        if (isEnemy(rank+rankOffset, file) && !isEmptySquare(rank+rankOffset, file) &&
+            (p.isType(square[rank+rankOffset][file], p.Rook) || p.isType(square[rank+rankOffset][file], p.Queen))) {
             if (friendlyPieceFound) {
                 for (int rankOffset2 = 1; rankOffset2 <= rankOffset; rankOffset2++) {
                     isKingPinnedLine[rank+rankOffset2][file] = true;
@@ -227,7 +245,8 @@ void Board::setHorizontalAttackInfo(int rank, int file, numSquaresStruct s2e) {
             if (friendlyPieceFound) break;
             friendlyPieceFound = true;
         }
-        if (isEnemy(rank, file-fileOffset) && !isEmptySquare(rank, file-fileOffset)) {
+        if (isEnemy(rank, file-fileOffset) && !isEmptySquare(rank, file-fileOffset) &&
+            (p.isType(square[rank][file-fileOffset], p.Rook) || p.isType(square[rank][file-fileOffset], p.Queen))) {
             if (friendlyPieceFound) {
                 for (int fileOffset2 = 1; fileOffset2 <= fileOffset; fileOffset2++) {
                     isKingPinnedLine[rank][file-fileOffset2] = true;
@@ -247,7 +266,8 @@ void Board::setHorizontalAttackInfo(int rank, int file, numSquaresStruct s2e) {
             if (friendlyPieceFound) break;
             friendlyPieceFound = true;
         }
-        if (isEnemy(rank, file+fileOffset) && !isEmptySquare(rank, file+fileOffset)) {
+        if (isEnemy(rank, file+fileOffset) && !isEmptySquare(rank, file+fileOffset) &&
+            (p.isType(square[rank][file+fileOffset], p.Rook) || p.isType(square[rank][file+fileOffset], p.Queen))) {
             if (friendlyPieceFound) {
                 for (int fileOffset2 = 1; fileOffset2 <= fileOffset; fileOffset2++) {
                     isKingPinnedLine[rank][file+fileOffset2] = true;
@@ -270,7 +290,8 @@ void Board::setDiagonalAttackInfo(int rank, int file, numSquaresStruct s2e) {
             if (friendlyPieceFound) break;
             friendlyPieceFound = true;
         }
-        if (isEnemy(rank-offset, file+offset) && !isEmptySquare(rank-offset, file+offset)) {
+        if (isEnemy(rank-offset, file+offset) && !isEmptySquare(rank-offset, file+offset) &&
+            (p.isType(square[rank-offset][file+offset], p.Bishop) || p.isType(square[rank-offset][file+offset], p.Queen))) {
             if (friendlyPieceFound) {
                 for (int offset2 = 1; offset2 <= offset; offset2++) {
                     isKingPinnedLine[rank-offset2][file+offset2] = true;
@@ -290,7 +311,8 @@ void Board::setDiagonalAttackInfo(int rank, int file, numSquaresStruct s2e) {
             if (friendlyPieceFound) break;
             friendlyPieceFound = true;
         }
-        if (isEnemy(rank+offset, file+offset) && !isEmptySquare(rank+offset, file+offset)) {
+        if (isEnemy(rank+offset, file+offset) && !isEmptySquare(rank+offset, file+offset) &&
+            (p.isType(square[rank+offset][file+offset], p.Bishop) || p.isType(square[rank+offset][file+offset], p.Queen))) {
             if (friendlyPieceFound) {
                 for (int offset2 = 1; offset2 <= offset; offset2++) {
                     isKingPinnedLine[rank+offset2][file+offset2] = true;
@@ -310,7 +332,8 @@ void Board::setDiagonalAttackInfo(int rank, int file, numSquaresStruct s2e) {
             if (friendlyPieceFound) break;
             friendlyPieceFound = true;
         }
-        if (isEnemy(rank+offset, file-offset) && !isEmptySquare(rank+offset, file-offset)) {
+        if (isEnemy(rank+offset, file-offset) && !isEmptySquare(rank+offset, file-offset) &&
+            (p.isType(square[rank+offset][file-offset], p.Bishop) || p.isType(square[rank+offset][file-offset], p.Queen))) {
             if (friendlyPieceFound) {
                 for (int offset2 = 1; offset2 <= offset; offset2++) {
                     isKingPinnedLine[rank+offset2][file-offset2] = true;
@@ -330,7 +353,8 @@ void Board::setDiagonalAttackInfo(int rank, int file, numSquaresStruct s2e) {
             if (friendlyPieceFound) break;
             friendlyPieceFound = true;
         }
-        if (isEnemy(rank-offset, file-offset) && !isEmptySquare(rank-offset, file-offset)) {
+        if (isEnemy(rank-offset, file-offset) && !isEmptySquare(rank-offset, file-offset) &&
+            (p.isType(square[rank-offset][file-offset], p.Bishop) || p.isType(square[rank-offset][file-offset], p.Queen))) {
             if (friendlyPieceFound) {
                 for (int offset2 = 1; offset2 <= offset; offset2++) {
                     isKingPinnedLine[rank-offset2][file-offset2] = true;
@@ -421,60 +445,19 @@ bool Board::queenCastleLegalB() {
 
 vector< moveStruct > Board::generateKingMoves(int rank, int file) {
     vector< moveStruct > moveList;
-    // Move north
-    if (isLegalSquare(rank-1, file) && (isEmptySquare(rank-1, file) || isEnemy(rank-1, file))) {
-        // If found move is not an attacked square.
-        if (!isPositionAttacked(rank-1, file)) {
-            moveList.push_back(createMoveStruct(rank, file, rank-1, file));
-        }
-    }
-    // Move north east
-    if (isLegalSquare(rank-1, file+1) && (isEmptySquare(rank-1, file+1) || isEnemy(rank-1, file+1))) {
-        // If found move is not an attacked square.
-        if (!isPositionAttacked(rank-1, file+1)) {
-            moveList.push_back(createMoveStruct(rank, file, rank-1, file+1));
-        }
-    }
-    // Move east
-    if (isLegalSquare(rank, file+1) && (isEmptySquare(rank, file+1) || isEnemy(rank, file+1))) {
-        // If found move is not an attacked square.
-        if (!isPositionAttacked(rank, file+1)) {
-            moveList.push_back(createMoveStruct(rank, file, rank, file+1));
-        }
-    }
-    // Move south east
-    if (isLegalSquare(rank+1, file+1) && (isEmptySquare(rank+1, file+1) || isEnemy(rank+1, file+1))) {
-        // If found move is not an attacked square.
-        if (!isPositionAttacked(rank+1, file+1)) {
-            moveList.push_back(createMoveStruct(rank, file, rank+1, file+1));
-        }
-    }
-    // Move south
-    if (isLegalSquare(rank+1, file) && (isEmptySquare(rank+1, file) || isEnemy(rank+1, file))) {
-        // If found move is not an attacked square.
-        if (!isPositionAttacked(rank+1, file)) {
-            moveList.push_back(createMoveStruct(rank, file, rank+1, file));
-        }
-    }
-    // Move south west
-    if (isLegalSquare(rank+1, file-1) && (isEmptySquare(rank+1, file-1) || isEnemy(rank+1, file-1))) {
-        // If found move is not an attacked square.
-        if (!isPositionAttacked(rank+1, file-1)) {
-            moveList.push_back(createMoveStruct(rank, file, rank+1, file-1));
-        }
-    }
-    // Move west
-    if (isLegalSquare(rank, file-1) && (isEmptySquare(rank, file-1) || isEnemy(rank, file-1))) {
-        // If found move is not an attacked square.
-        if (!isPositionAttacked(rank, file-1)) {
-            moveList.push_back(createMoveStruct(rank, file, rank, file-1));
-        }
-    }
-    // Move north west
-    if (isLegalSquare(rank-1, file-1) && (isEmptySquare(rank-1, file-1) || isEnemy(rank-1, file-1))) {
-        // If found move is not an attacked square.
-        if (!isPositionAttacked(rank-1, file-1)) {
-            moveList.push_back(createMoveStruct(rank, file, rank-1, file-1));
+    vector < vector < int > > kingMoveSquares{vector <int>{rank-1, file}, vector<int>{rank-1, file+1},
+                                                vector <int>{rank, file+1}, vector<int>{rank+1, file+1},
+                                                vector <int>{rank+1, file}, vector<int>{rank+1, file-1},
+                                                vector <int>{rank, file-1}, vector<int>{rank-1, file-1}};
+
+    for (vector < int > move : kingMoveSquares) {
+        int attackRank = move[0];
+        int attackFile = move[1];
+        if (isLegalSquare(attackRank, attackFile) && (isEmptySquare(attackRank, attackFile) || isEnemy(attackRank, attackFile))) {
+            // If found move is not an attacked square.
+            if (!isPositionAttacked(attackRank, attackFile)) {
+                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
+            }
         }
     }
 
@@ -492,144 +475,44 @@ vector< moveStruct > Board::generateQueenMoves(int rank, int file, bool resolveC
 vector< moveStruct > Board::generateRookMoves(int rank, int file, bool resolveCheck) {
     vector< moveStruct > moveList;
     for (int rankOffset = 1; rankOffset <= SquaresToEdge[rank][file].north; rankOffset++) {
-        int attackRank = rank-rankOffset;
-        int attackFile = file;
+        int attackRank = rank-rankOffset, attackFile = file;
         if (!isEmptySquare(attackRank, attackFile)) {
-            if (isEnemy(attackRank, attackFile)) {
-                if (resolveCheck) {
-                    if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                } else {
-                    if (isKingPinnedLine[rank][file]) {
-                        if (isKingPinnedLine[attackRank][attackFile]) {
-                            moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                        }
-                    } else {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                }
+            if ( isEnemy(attackRank, attackFile)) {
+                addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
             }
             break;
         }
-        if (resolveCheck) {
-            if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if (isKingPinnedLine[attackRank][attackFile]) {
-                    moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        }
+        addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
     }
     for (int rankOffset = 1; rankOffset <= SquaresToEdge[rank][file].south; rankOffset++) {
-        int attackRank = rank+rankOffset;
-        int attackFile = file;
+        int attackRank = rank+rankOffset, attackFile = file;
         if (!isEmptySquare(attackRank, attackFile)) {
-            if (isEnemy(attackRank, attackFile)) {
-                if (resolveCheck) {
-                    if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                } else {
-                    if (isKingPinnedLine[rank][file]) {
-                        if (isKingPinnedLine[attackRank][attackFile]) {
-                            moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                        }
-                    } else {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                }
+            if ( isEnemy(attackRank, attackFile)) {
+                addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
             }
             break;
         }
-        if (resolveCheck) {
-            if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if (isKingPinnedLine[attackRank][attackFile]) {
-                    moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        }
+        addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
     }
     for (int fileOffset = 1; fileOffset <= SquaresToEdge[rank][file].east; fileOffset++) {
-        int attackRank = rank;
-        int attackFile = file + fileOffset;
+        int attackRank = rank, attackFile = file + fileOffset;
         if (!isEmptySquare(attackRank, attackFile)) {
-            if (isEnemy(attackRank, attackFile)) {
-                if (resolveCheck) {
-                    if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                } else {
-                    if (isKingPinnedLine[rank][file]) {
-                        if (isKingPinnedLine[attackRank][attackFile]) {
-                            moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                        }
-                    } else {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                }
+            if ( isEnemy(attackRank, attackFile)) {
+                addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
             }
             break;
         }
-        if (resolveCheck) {
-            if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if (isKingPinnedLine[attackRank][attackFile]) {
-                    moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        }
+        addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
     }
     for (int fileOffset = 1; fileOffset <= SquaresToEdge[rank][file].west; fileOffset++) {
-        int attackRank = rank;
-        int attackFile = file - fileOffset;
+        int attackRank = rank, attackFile = file - fileOffset;
         if (!isEmptySquare(attackRank, attackFile)) {
-            if (isEnemy(attackRank, attackFile)) {
-                if (resolveCheck) {
-                    if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                } else {
-                    if (isKingPinnedLine[rank][file]) {
-                        if (isKingPinnedLine[attackRank][attackFile]) {
-                            moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                        }
-                    } else {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                }
+            if ( isEnemy(attackRank, attackFile)) {
+                addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
             }
             break;
         }
-        if (resolveCheck) {
-            if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if (isKingPinnedLine[attackRank][attackFile]) {
-                    moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        }
+        addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
     }
 
     return moveList;
@@ -638,271 +521,61 @@ vector< moveStruct > Board::generateRookMoves(int rank, int file, bool resolveCh
 vector< moveStruct > Board::generateBishopMoves(int rank, int file, bool resolveCheck) {
     vector< moveStruct > moveList;
     for (int offset = 1; offset <= SquaresToEdge[rank][file].northEast; offset++) {
-        int attackRank = rank - offset;
-        int attackFile = file + offset;
+        int attackRank = rank - offset, attackFile = file + offset;
         if (!isEmptySquare(attackRank, attackFile)) {
-            if (isEnemy(attackRank, attackFile)) {
-                if (resolveCheck) {
-                    if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                } else {
-                    if (isKingPinnedLine[rank][file]) {
-                        if (isKingPinnedLine[attackRank][attackFile]) {
-                            moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                        }
-                    } else {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                }
+            if ( isEnemy(attackRank, attackFile)) {
+                addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
             }
             break;
         }
-        if (resolveCheck) {
-            if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if (isKingPinnedLine[attackRank][attackFile]) {
-                    moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        }
+        addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
     }
     for (int offset = 1; offset <= SquaresToEdge[rank][file].southEast; offset++) {
-        int attackRank = rank + offset;
-        int attackFile = file + offset;
+        int attackRank = rank + offset, attackFile = file + offset;
         if (!isEmptySquare(attackRank, attackFile)) {
-            if (isEnemy(attackRank, attackFile)) {
-                if (resolveCheck) {
-                    if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                } else {
-                    if (isKingPinnedLine[rank][file]) {
-                        if (isKingPinnedLine[attackRank][attackFile]) {
-                            moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                        }
-                    } else {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                }
+            if ( isEnemy(attackRank, attackFile)) {
+                addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
             }
             break;
         }
-        if (resolveCheck) {
-            if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if (isKingPinnedLine[attackRank][attackFile]) {
-                    moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        }
+        addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
     }
     for (int offset = 1; offset <= SquaresToEdge[rank][file].southWest; offset++) {
-        int attackRank = rank + offset;
-        int attackFile = file - offset;
+        int attackRank = rank + offset, attackFile = file - offset;
         if (!isEmptySquare(attackRank, attackFile)) {
-            if (isEnemy(attackRank, attackFile)) {
-                if (resolveCheck) {
-                    if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                } else {
-                    if (isKingPinnedLine[rank][file]) {
-                        if (isKingPinnedLine[attackRank][attackFile]) {
-                            moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                        }
-                    } else {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                }
+            if ( isEnemy(attackRank, attackFile)) {
+                addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
             }
             break;
         }
-        if (resolveCheck) {
-            if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if (isKingPinnedLine[attackRank][attackFile]) {
-                    moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        }
+        addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
     }
     for (int offset = 1; offset <= SquaresToEdge[rank][file].northWest; offset++) {
-        int attackRank = rank - offset;
-        int attackFile = file - offset;
+        int attackRank = rank - offset, attackFile = file - offset;
         if (!isEmptySquare(attackRank, attackFile)) {
-            if (isEnemy(attackRank, attackFile)) {
-                if (resolveCheck) {
-                    if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                } else {
-                    if (isKingPinnedLine[rank][file]) {
-                        if (isKingPinnedLine[attackRank][attackFile]) {
-                            moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                        }
-                    } else {
-                        moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                    }
-                }
+            if ( isEnemy(attackRank, attackFile)) {
+                addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
             }
             break;
         }
-        if (resolveCheck) {
-            if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if (isKingPinnedLine[attackRank][attackFile]) {
-                    moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, attackRank, attackFile));
-            }
-        }
+        addSlidingMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
     }
 
     return moveList;
 }
 
 vector< moveStruct > Board::generateKnightMoves(int rank, int file, bool resolveCheck) {
-    vector< moveStruct > moveList;
+    vector < moveStruct > moveList;
+    vector < vector < int > > knightMoveSquares{vector <int>{rank+1, file+2}, vector<int>{rank+1, file-2},
+                                                vector <int>{rank-1, file+2}, vector<int>{rank-1, file-2},
+                                                vector <int>{rank+2, file+1}, vector<int>{rank+2, file-1},
+                                                vector <int>{rank-2, file+1}, vector<int>{rank-2, file-1}};
 
-    if (isLegalSquare(rank+1, file+2) && (isEmptySquare(rank+1, file+2) || isEnemy(rank+1, file+2))) {
-        if (resolveCheck) {
-            if (isKingAttackLine[rank+1][file+2] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, rank+1, file+2));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if(isKingPinnedLine[rank+1][file+2]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank+1, file+2));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, rank+1, file+2));
-            }
-        }
-
-    }
-    if (isLegalSquare(rank+1, file-2) && (isEmptySquare(rank+1, file-2) || isEnemy(rank+1, file-2))) {
-        if (resolveCheck) {
-            if (isKingAttackLine[rank+1][file-2] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, rank+1, file-2));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if(isKingPinnedLine[rank+1][file-2]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank+1, file-2));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, rank+1, file-2));
-            }
-        }
-    }
-    if (isLegalSquare(rank-1, file+2) && (isEmptySquare(rank-1, file+2) || isEnemy(rank-1, file+2))) {
-        if (resolveCheck) {
-            if (isKingAttackLine[rank-1][file+2] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, rank-1, file+2));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if(isKingPinnedLine[rank-1][file+2]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank-1, file+2));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, rank-1, file+2));
-            }
-        }
-    }
-    if (isLegalSquare(rank-1, file-2) && (isEmptySquare(rank-1, file-2) || isEnemy(rank-1, file-2))) {
-        if (resolveCheck) {
-            if (isKingAttackLine[rank-1][file-2] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, rank-1, file-2));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if(isKingPinnedLine[rank-1][file-2]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank-1, file-2));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, rank-1, file-2));
-            }
-        }
-    }
-    if (isLegalSquare(rank+2, file+1) && (isEmptySquare(rank+2, file+1) || isEnemy(rank+2, file+1))) {
-        if (resolveCheck) {
-            if (isKingAttackLine[rank+2][file+1] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, rank+2, file+1));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if(isKingPinnedLine[rank+2][file+1]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank+2, file+1));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, rank+2, file+1));
-            }
-        }
-    }
-    if (isLegalSquare(rank+2, file-1) && (isEmptySquare(rank+2, file-1) || isEnemy(rank+2, file-1))) {
-        if (resolveCheck) {
-            if (isKingAttackLine[rank+2][file-1] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, rank+2, file-1));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if(isKingPinnedLine[rank+2][file-1]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank+2, file-1));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, rank+2, file-1));
-            }
-        }
-    }
-    if (isLegalSquare(rank-2, file+1) && (isEmptySquare(rank-2, file+1) || isEnemy(rank-2, file+1))) {
-        if (resolveCheck) {
-            if (isKingAttackLine[rank-2][file+1] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, rank-2, file+1));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if(isKingPinnedLine[rank-2][file+1]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank-2, file+1));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, rank-2, file+1));
-            }
-        }
-    }
-    if (isLegalSquare(rank-2, file-1) && (isEmptySquare(rank-2, file-1) || isEnemy(rank-2, file-1))) {
-        if (resolveCheck) {
-            if (isKingAttackLine[rank-2][file-1] && !isKingPinnedLine[rank][file]) {
-                moveList.push_back(createMoveStruct(rank, file, rank-2, file-1));
-            }
-        } else {
-            if (isKingPinnedLine[rank][file]) {
-                if(isKingPinnedLine[rank-2][file-1]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank-2, file-1));
-                }
-            } else {
-                moveList.push_back(createMoveStruct(rank, file, rank-2, file-1));
-            }
+    for (vector < int > move : knightMoveSquares) {
+        int attackRank = move[0];
+        int attackFile = move[1];
+        if (isLegalSquare(attackRank, attackFile) && (isEmptySquare(attackRank, attackFile) || isEnemy(attackRank, attackFile))) {
+            addKnightMove(resolveCheck, rank, file, attackRank, attackFile, moveList, isKingAttackLine, isKingPinnedLine);
         }
     }
 
@@ -926,52 +599,30 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file, bool resolveCh
                 moveList.insert(moveList.end(), promotionMoves.begin(), promotionMoves.end());
             }
         } else {
-            if (resolveCheck) {
-                if (isKingAttackLine[rank-1*rankDirection][file] && !isKingPinnedLine[rank][file]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file));
-                }
-            } else {
-                if (!isKingPinnedLine[rank][file]) moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file));
-            }
+            addPawnMove(resolveCheck, rank, file, rank-1*rankDirection, file, moveList, isKingAttackLine, isKingPinnedLine);
         }
     }
 
     // Two step first move
     if (p.isColor(activeColorBits, p.White)) {
         if (rank == 6 && isEmptySquare(rank-2*rankDirection, file) && isEmptySquare(rank-1*rankDirection, file)) {
-            if (resolveCheck) {
-                if (isKingAttackLine[rank-2*rankDirection][file] && !isKingPinnedLine[rank][file]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank-2*rankDirection, file));
-                }
-            } else {
-                if (!isKingPinnedLine[rank][file]) moveList.push_back(createMoveStruct(rank, file, rank-2*rankDirection, file));
-            }
+            addPawnMove(resolveCheck, rank, file, rank-2*rankDirection, file, moveList, isKingAttackLine, isKingPinnedLine);
         }
     } else if (p.isColor(activeColorBits, p.Black)) {
         if (rank == 1 && isEmptySquare(rank-2*rankDirection, file) && isEmptySquare(rank-1*rankDirection, file)) {
-            if (resolveCheck) {
-                if (isKingAttackLine[rank-2*rankDirection][file] && !isKingPinnedLine[rank][file]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank-2*rankDirection, file));
-                }
-            } else {
-                if (!isKingPinnedLine[rank][file]) moveList.push_back(createMoveStruct(rank, file, rank-2*rankDirection, file));
-            }
+            addPawnMove(resolveCheck, rank, file, rank-2*rankDirection, file, moveList, isKingAttackLine, isKingPinnedLine);
         }
     }
 
     // Capture
     if (isLegalSquare(rank-1*rankDirection, file+1) && !isEmptySquare(rank-1*rankDirection, file+1) && isEnemy(rank-1*rankDirection, file+1)) {
         if ((p.isColor(activeColorBits, p.White) && rank == 1) || p.isColor(activeColorBits, p.Black) && rank == 6) {
-            vector< moveStruct > promotionMoves = generatePromotionOptions(rank, file, rank-1*rankDirection, file+1, resolveCheck);
-            moveList.insert(moveList.end(), promotionMoves.begin(), promotionMoves.end());
-        } else {
-            if (resolveCheck) {
-                if (isKingAttackLine[rank-1*rankDirection][file+1] && !isKingPinnedLine[rank][file]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file+1));
-                }
-            } else {
-                if (!isKingPinnedLine[rank][file]) moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file+1));
+            if (!isKingPinnedLine[rank][file]) {
+                vector< moveStruct > promotionMoves = generatePromotionOptions(rank, file, rank-1*rankDirection, file+1, resolveCheck);
+                moveList.insert(moveList.end(), promotionMoves.begin(), promotionMoves.end());
             }
+        } else {
+            addPawnMove(resolveCheck, rank, file, rank-1*rankDirection, file+1, moveList, isKingAttackLine, isKingPinnedLine);
         }
     }
     if (isLegalSquare(rank-1*rankDirection, file-1) && !isEmptySquare(rank-1*rankDirection, file-1) && isEnemy(rank-1*rankDirection, file-1)) {
@@ -981,13 +632,7 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file, bool resolveCh
                 moveList.insert(moveList.end(), promotionMoves.begin(), promotionMoves.end());
             }
         } else {
-            if (resolveCheck) {
-                if (isKingAttackLine[rank-1*rankDirection][file-1] && !isKingPinnedLine[rank][file]) {
-                    moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file-1));
-                }
-            } else {
-                if (!isKingPinnedLine[rank][file]) moveList.push_back(createMoveStruct(rank, file, rank-1*rankDirection, file-1));
-            }
+            addPawnMove(resolveCheck, rank, file, rank-1*rankDirection, file-1, moveList, isKingAttackLine, isKingPinnedLine);
         }
     }
 
@@ -996,13 +641,7 @@ vector< moveStruct > Board::generatePawnMoves(int rank, int file, bool resolveCh
         if (positionToRank(enPassantTargets) == rank - 1*rankDirection && abs(positionToFile(enPassantTargets) - file) == 1) {
             int epRank = positionToRank(enPassantTargets);
             int epFile = positionToFile(enPassantTargets);
-            if (resolveCheck) {
-                if (isKingAttackLine[epRank][epFile] && !isKingPinnedLine[rank][file]) {
-                    moveList.push_back(createMoveStruct(rank, file, epRank, epFile));
-                }
-            } else {
-                if (!isKingPinnedLine[rank][file]) moveList.push_back(createMoveStruct(rank, file, epRank, epFile));
-            }
+            addPawnMove(resolveCheck, rank, file, epRank, epFile, moveList, isKingAttackLine, isKingPinnedLine);
         }
     }
 
@@ -1019,10 +658,12 @@ vector< moveStruct > Board::generatePromotionOptions(int beginRank, int beginFil
             moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "N"));
         }
     } else {
-        moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "Q"));
-        moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "R"));
-        moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "B"));
-        moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "N"));
+        if (!isKingPinnedLine[beginRank][beginFile]) {
+            moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "Q"));
+            moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "R"));
+            moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "B"));
+            moveList.push_back(createMoveStructPromotion(beginRank, beginFile, endRank, endFile, "N"));
+        }
     }
 
 

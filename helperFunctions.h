@@ -92,3 +92,15 @@ void printMoveList(vector< moveStruct > moveList);
 // file: The file index of the square to be checked.
 // Returns true if legal, false otherwise.
 bool isLegalSquare(int rank, int file);
+
+void addKnightMove(bool resolveCheck, int beginRank, int beginFile, int attackRank,
+                   int attackFile, vector< moveStruct > &moveList,
+                   vector<vector<bool>> isKingAttackLine, vector<vector<bool>> isKingPinnedLine);
+
+void addSlidingMove(bool resolveCheck, int beginRank, int beginFile, int attackRank,
+                   int attackFile, vector< moveStruct > &moveList,
+                   vector<vector<bool>> isKingAttackLine, vector<vector<bool>> isKingPinnedLine);
+
+void addPawnMove(bool resolveCheck, int beginRank, int beginFile, int attackRank,
+                   int attackFile, vector< moveStruct > &moveList,
+                   vector<vector<bool>> isKingAttackLine, vector<vector<bool>> isKingPinnedLine);

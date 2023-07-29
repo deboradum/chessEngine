@@ -236,3 +236,53 @@ moveStruct createMoveStructPromotion(int beginRank, int beginFile, int endRank, 
 bool isLegalSquare(int rank, int file) {
     return (0 <= rank && rank <= 7) && (0 <= file && file <= 7);
 }
+
+void addKnightMove(bool resolveCheck, int beginRank, int beginFile, int attackRank,
+                   int attackFile, vector< moveStruct > &moveList,
+                   vector<vector<bool>> isKingAttackLine, vector<vector<bool>> isKingPinnedLine) {
+    if (resolveCheck) {
+        if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[beginRank][beginFile]) {
+            moveList.push_back(createMoveStruct(beginRank, beginFile, attackRank, attackFile));
+        }
+    } else {
+        if (isKingPinnedLine[beginRank][beginFile]) {
+            if(isKingPinnedLine[attackRank][attackFile]) {
+                moveList.push_back(createMoveStruct(beginRank, beginFile, attackRank, attackFile));
+            }
+        } else {
+            moveList.push_back(createMoveStruct(beginRank, beginFile, attackRank, attackFile));
+        }
+    }
+}
+
+void addSlidingMove(bool resolveCheck, int beginRank, int beginFile, int attackRank,
+                   int attackFile, vector< moveStruct > &moveList,
+                   vector<vector<bool>> isKingAttackLine, vector<vector<bool>> isKingPinnedLine) {
+    if (resolveCheck) {
+        if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[beginRank][beginFile]) {
+            moveList.push_back(createMoveStruct(beginRank, beginFile, attackRank, attackFile));
+        }
+    } else {
+        if (isKingPinnedLine[beginRank][beginFile]) {
+            if (isKingPinnedLine[attackRank][attackFile]) {
+                moveList.push_back(createMoveStruct(beginRank, beginFile, attackRank, attackFile));
+            }
+        } else {
+            moveList.push_back(createMoveStruct(beginRank, beginFile, attackRank, attackFile));
+        }
+    }
+}
+
+void addPawnMove(bool resolveCheck, int beginRank, int beginFile, int attackRank,
+                   int attackFile, vector< moveStruct > &moveList,
+                   vector<vector<bool>> isKingAttackLine, vector<vector<bool>> isKingPinnedLine) {
+    if (resolveCheck) {
+        if (isKingAttackLine[attackRank][attackFile] && !isKingPinnedLine[beginRank][beginFile]) {
+            moveList.push_back(createMoveStruct(beginRank, beginFile, attackRank, attackFile));
+        }
+    } else {
+        if (!isKingPinnedLine[beginRank][beginFile]) {
+            moveList.push_back(createMoveStruct(beginRank, beginFile, attackRank, attackFile));
+        }
+    }
+}

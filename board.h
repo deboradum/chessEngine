@@ -8,6 +8,7 @@
 #include <string>
 #include <bitset>
 #include <cstddef>
+#include <tuple>
 
 using namespace std;
 

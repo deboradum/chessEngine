@@ -49,12 +49,11 @@ int main()
             if (msg.rfind("go", 0) == 0) {
                 cout << "Legal moves: ";
                 printMoveList(b.legalMoves);
-                cout << endl;
                 // cout << "Attacked Squares: ";
                 // for (string a : b.attackedSquares) {
                 //     cout << a << " ";
                 // }
-                // cout << endl;
+                cout << endl;
                 cout << "bestmove " << b.generateBestMove() << endl;
             }
             else {
