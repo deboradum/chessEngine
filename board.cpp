@@ -72,6 +72,8 @@ void Board::printBoard() {
 
 void Board::setupBoardLayout(string piecePlacement) {
     square = vector< vector<bitset<5> > >(8, vector < bitset<5> >(8, {0}));
+    isKingAttackLine = vector< vector< bool > >(8, vector< bool >(8, false));
+    isKingPinnedLine = vector< vector< bool > >(8, vector< bool >(8, false));
 
     int rank = 0;
     for (string line : convertFenPP(piecePlacement)) {
@@ -177,20 +179,20 @@ void Board::generateKingAttackLines() {
     setHorizontalAttackInfo(kingRank, kingFile, s2e);
     setDiagonalAttackInfo(kingRank, kingFile, s2e);
     // Prints attack & pin lines for debugging.
-    // cout << endl;
-    // for (vector <bool> line : isKingAttackLine ) {
-    //     for (bool b : line) {
-    //         cout << b << " ";
-    //     }
-    //     cout << endl;
-    // }
-    // cout << endl;
-    // for (vector <bool> line : isKingPinnedLine ) {
-    //     for (bool b : line) {
-    //         cout << b << " ";
-    //     }
-    //     cout << endl;
-    // }
+    cout << endl;
+    for (vector <bool> line : isKingAttackLine ) {
+        for (bool b : line) {
+            cout << b << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+    for (vector <bool> line : isKingPinnedLine ) {
+        for (bool b : line) {
+            cout << b << " ";
+        }
+        cout << endl;
+    }
 }
 
 void Board::setVerticalAttackInfo(int rank, int file, numSquaresStruct s2e) {
@@ -707,8 +709,6 @@ vector < string > Board::generateAttackedSquares() {
             } else if (p.isType(piece, p.Pawn)) {
                 vector < string > pawnAttacks = generatePawnAttacks(rank, file);
                 attackedSquareList.insert(attackedSquareList.end(), pawnAttacks.begin(), pawnAttacks.end());
-            } else {
-                continue;
             }
         }
     }
@@ -718,37 +718,17 @@ vector < string > Board::generateAttackedSquares() {
 
 vector < string > Board::generateKingAttacks(int rank, int file) {
     vector < string > attackedSquaresList;
-    // Move north
-    if (isLegalSquare(rank-1, file)) {
-        attackedSquaresList.push_back(indexToPosition(rank-1, file));
-    }
-    // Move north east
-    if (isLegalSquare(rank-1, file+1)) {
-        attackedSquaresList.push_back(indexToPosition(rank-1, file+1));
-    }
-    // Move east
-    if (isLegalSquare(rank, file+1)) {
-        attackedSquaresList.push_back(indexToPosition(rank, file+1));
-    }
-    // Move south east
-    if (isLegalSquare(rank+1, file+1)) {
-        attackedSquaresList.push_back(indexToPosition(rank+1, file+1));
-    }
-    // Move south
-    if (isLegalSquare(rank+1, file)) {
-        attackedSquaresList.push_back(indexToPosition(rank+1, file));
-    }
-    // Move south west
-    if (isLegalSquare(rank+1, file-1)) {
-        attackedSquaresList.push_back(indexToPosition(rank+1, file-1));
-    }
-    // Move south west
-    if (isLegalSquare(rank, file-1)) {
-        attackedSquaresList.push_back(indexToPosition(rank, file-1));
-    }
-    // Move north west
-    if (isLegalSquare(rank-1, file-1)) {
-        attackedSquaresList.push_back(indexToPosition(rank-1, file-1));
+    vector < vector < int > > kingMoveSquares{vector <int>{rank-1, file}, vector<int>{rank-1, file+1},
+                                              vector <int>{rank, file+1}, vector<int>{rank+1, file+1},
+                                              vector <int>{rank+1, file}, vector<int>{rank+1, file-1},
+                                              vector <int>{rank, file-1}, vector<int>{rank-1, file-1}};
+
+    for (vector < int > move : kingMoveSquares) {
+        int attackRank = move[0];
+        int attackFile = move[1];
+        if (isLegalSquare(attackRank, attackFile)) {
+            attackedSquaresList.push_back(indexToPosition(attackRank, attackFile));
+        }
     }
 
     return attackedSquaresList;
@@ -832,30 +812,17 @@ vector< string > Board::generateBishopAttacks(int rank, int file) {
 
 vector< string > Board::generateKnightAttacks(int rank, int file) {
     vector< string > attackedSquaresList;
+    vector < vector < int > > knightMoveSquares{vector <int>{rank+1, file+2}, vector<int>{rank+1, file-2},
+                                                vector <int>{rank-1, file+2}, vector<int>{rank-1, file-2},
+                                                vector <int>{rank+2, file+1}, vector<int>{rank+2, file-1},
+                                                vector <int>{rank-2, file+1}, vector<int>{rank-2, file-1}};
 
-    if (isLegalSquare(rank+1, file+2)) {
-        attackedSquaresList.push_back(indexToPosition(rank+1, file+2));
-    }
-    if (isLegalSquare(rank+1, file-2)) {
-        attackedSquaresList.push_back(indexToPosition(rank+1, file-2));
-    }
-    if (isLegalSquare(rank-1, file+2)) {
-        attackedSquaresList.push_back(indexToPosition(rank-1, file+2));
-    }
-    if (isLegalSquare(rank-1, file-2)) {
-        attackedSquaresList.push_back(indexToPosition(rank-1, file-2));
-    }
-    if (isLegalSquare(rank+2, file+1)) {
-        attackedSquaresList.push_back(indexToPosition(rank+2, file+1));
-    }
-    if (isLegalSquare(rank+2, file-1)) {
-        attackedSquaresList.push_back(indexToPosition(rank+2, file-1));
-    }
-    if (isLegalSquare(rank-2, file+1)) {
-        attackedSquaresList.push_back(indexToPosition(rank-2, file+1));
-    }
-    if (isLegalSquare(rank-2, file-1)) {
-        attackedSquaresList.push_back(indexToPosition(rank-2, file-1));
+    for (vector < int > move : knightMoveSquares) {
+        int attackRank = move[0];
+        int attackFile = move[1];
+        if (isLegalSquare(attackRank, attackFile)) {
+            attackedSquaresList.push_back(indexToPosition(attackRank, attackFile));
+        }
     }
 
     return attackedSquaresList;
