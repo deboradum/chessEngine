@@ -31,6 +31,7 @@ void Board::setupBoard(fen f) {
     enPassantTargets = f.enPassantTargets;
     fullMoves = f.fullMoves;
     halfMoves = f.halfMoves;
+    movesMade = {};
     for (string move : f.movesMade) {
         if (!move.substr(0, 2).compare("a8") && p.isColor(activeColorBits, p.Black) ||
             !move.substr(0, 2).compare("a1") && p.isColor(activeColorBits, p.White)) qRookMoved = true;
@@ -83,7 +84,8 @@ void Board::setupBoardLayout(string piecePlacement) {
                 file += int(c)-'0';
                 continue;
             }
-            setPiece(rank, file, c, square);
+            bitset<5> color = isupper(c) ? p.White : p.Black;
+            setPiece(rank, file, c, color, square);
             file++;
         }
         rank++;
@@ -118,9 +120,11 @@ void Board::makeMove(string move) {
         string start = move.substr(0, 2);
         string end = move.substr(2, 2);
         char promotedTo = move[4];
+        bitset<5> color = p.White;
+        if (end[1] == '1') color = p.Black;
 
         square[positionToRank(start)][positionToFile(start)] = EMPTY_SQUARE;
-        setPiece(positionToRank(end), positionToFile(end), promotedTo, square);
+        setPiece(positionToRank(end), positionToFile(end), promotedTo, color, square);
     }
 
     return;
@@ -162,8 +166,30 @@ vector< moveStruct > Board::generateMoves() {
     if (castlingRights != "-") {
         vector < moveStruct> castlingMoves = generateCastlingMoves();
         moveList.insert(moveList.end(), castlingMoves.begin(), castlingMoves.end());
-    } else {
-        cout << "No castling available!"<< endl;
+    }
+
+    // Hacky method to filter last couple illegal moves when in check. Moves
+    // that can be marked as legal incorrectly can be either due to knight checks
+    // or king movement into the line of sight of a sliding piece.
+    // Need to fix later when speed is an issue, but for now it works.
+    if (inCheck()) {
+        cout << "Performing checks" << endl;
+        vector < moveStruct> correctMoves;
+        vector < vector < bitset <5> > > boardCopy(square);
+        for (moveStruct move : moveList) {
+            cout << "Checking move: " << moveStructToMoveString(move) << endl;
+            makeMove(moveStructToMoveString(move));
+            attackedSquares = generateAttackedSquares();
+            // generateKingAttackLines();
+            if (!inCheck())  {
+                cout << "Move: " << moveStructToMoveString(move) << "is legal" << endl;
+                correctMoves.push_back(move);
+            }
+            square = boardCopy;
+            attackedSquares = generateAttackedSquares();
+            // generateKingAttackLines();
+        }
+        return correctMoves;
     }
 
     return moveList;
@@ -179,20 +205,20 @@ void Board::generateKingAttackLines() {
     setHorizontalAttackInfo(kingRank, kingFile, s2e);
     setDiagonalAttackInfo(kingRank, kingFile, s2e);
     // Prints attack & pin lines for debugging.
-    cout << endl;
-    for (vector <bool> line : isKingAttackLine ) {
-        for (bool b : line) {
-            cout << b << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
-    for (vector <bool> line : isKingPinnedLine ) {
-        for (bool b : line) {
-            cout << b << " ";
-        }
-        cout << endl;
-    }
+    // cout << endl;
+    // for (vector <bool> line : isKingAttackLine ) {
+    //     for (bool b : line) {
+    //         cout << b << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // cout << endl;
+    // for (vector <bool> line : isKingPinnedLine ) {
+    //     for (bool b : line) {
+    //         cout << b << " ";
+    //     }
+    //     cout << endl;
+    // }
 }
 
 void Board::setVerticalAttackInfo(int rank, int file, numSquaresStruct s2e) {
@@ -263,7 +289,7 @@ void Board::setHorizontalAttackInfo(int rank, int file, numSquaresStruct s2e) {
         }
     }
     friendlyPieceFound = false;
-    for (int fileOffset = 1; fileOffset <= s2e.west; fileOffset++) {
+    for (int fileOffset = 1; fileOffset <= s2e.east; fileOffset++) {
         if (!isEnemy(rank, file+fileOffset) && !isEmptySquare(rank, file+fileOffset)) {
             if (friendlyPieceFound) break;
             friendlyPieceFound = true;
@@ -373,7 +399,6 @@ void Board::setDiagonalAttackInfo(int rank, int file, numSquaresStruct s2e) {
 }
 
 vector< moveStruct > Board::generateCastlingMoves() {
-    cout << "Castling available: " << castlingRights << endl;
     if (p.isColor(activeColorBits, p.White)) {
         return generateCastlingMovesW();
     } else {
@@ -851,6 +876,7 @@ bool Board::inCheck() {
     if (find(attackedSquares.begin(), attackedSquares.end(), kingPos) != attackedSquares.end()) {
         cout << "In check!" << endl;
     }
+
     return find(attackedSquares.begin(), attackedSquares.end(), kingPos) != attackedSquares.end();
 }
 
@@ -878,8 +904,10 @@ string Board::generateBestMove() {
 }
 
 bool Board::isCastlingMove(string move) {
-    if (!move.compare("e1c1") || !move.compare("e1g1") ||
-        !move.compare("e8c8") || !move.compare("e8g8")) {
+    if ((!move.compare("e1c1") && p.isType(square[7][4], p.King)) ||
+         (!move.compare("e1g1") && p.isType(square[7][4], p.King)) ||
+         (!move.compare("e8c8") && p.isType(square[0][4], p.King)) ||
+         (!move.compare("e8g8") && p.isType(square[0][4], p.King))) {
             return true;
     }
 

@@ -79,6 +79,12 @@ namespace board {
         // Generates the best move from all the possible legal moves.
         // Returns the best move found.
         string generateBestMove();
+        // performs a move on the board.
+        // move: The move that is to be performed.
+        void makeMove(string move);
+        // Checks if the player is currently in check.
+        // Returns true if player is currently in check. False otherwise.
+        bool inCheck();
 
     private:
         // Sets up the board layout.
@@ -123,9 +129,7 @@ namespace board {
         // file: the file index of the position.
         // Returns true if the specified square is currently attacked.
         bool isPositionAttacked(int rank, int file);
-        // Checks if the player is currently in check.
-        // Returns true if player is currently in check. False otherwise.
-        bool inCheck();
+
         //
         void generateKingAttackLines();
 
@@ -192,10 +196,6 @@ namespace board {
         // move: The move that is to be checked.
         // Returns true if the move is a castling move, false otherwise.
         bool isCastlingMove(string move);
-
-        // performs a move on the board.
-        // move: The move that is to be performed.
-        void makeMove(string move);
 
         // Checks if piece at a certain position is an enemy piece.
         // rank: The rank index of the piece.

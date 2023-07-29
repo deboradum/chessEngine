@@ -37,7 +37,7 @@ void setFen(int fenIndex, fen &f, string s);
 fen parsePosition(string positionString);
 
 // TODO: Make this a method on board object in stead of helper function!
-void setPiece(int rank, int file, char pieceChar, vector< vector<bitset<5> > > &square);
+void setPiece(int rank, int file, char pieceChar, bitset<5> pieceColor, vector< vector<bitset<5> > > &square);
 
 // Gets the rank index from a position string.
 // squarePos: The position string of a square.

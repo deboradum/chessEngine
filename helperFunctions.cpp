@@ -78,29 +78,29 @@ fen parsePosition(string positionString) {
     return f;
 }
 
-void setPiece(int rank, int file, char pieceChar, vector< vector<bitset<5> > > &square) {
+void setPiece(int rank, int file, char pieceChar, bitset<5> pieceColor, vector< vector<bitset<5> > > &square) {
     assert(validPieceChar(pieceChar));
 
-    piece::Piece Piece;
-    bool whitePiece = isupper(pieceChar);
+    piece::Piece p;
+    bool whitePiece = p.White == pieceColor;
     switch (tolower(pieceChar)) {
         case 'k':
-            square[rank][file] = whitePiece ? Piece.White | Piece.King : Piece.Black | Piece.King;
+            square[rank][file] = whitePiece ? p.White | p.King : p.Black | p.King;
             break;
         case 'q':
-            square[rank][file] = whitePiece ? Piece.White | Piece.Queen : Piece.Black | Piece.Queen;
+            square[rank][file] = whitePiece ? p.White | p.Queen : p.Black | p.Queen;
             break;
         case 'r':
-            square[rank][file] = whitePiece ? Piece.White | Piece.Rook : Piece.Black | Piece.Rook;
+            square[rank][file] = whitePiece ? p.White | p.Rook : p.Black | p.Rook;
             break;
         case 'b':
-            square[rank][file] = whitePiece ? Piece.White | Piece.Bishop : Piece.Black | Piece.Bishop;
+            square[rank][file] = whitePiece ? p.White | p.Bishop : p.Black | p.Bishop;
             break;
         case 'n':
-            square[rank][file] = whitePiece ? Piece.White | Piece.Knight : Piece.Black | Piece.Knight;
+            square[rank][file] = whitePiece ? p.White | p.Knight : p.Black | p.Knight;
             break;
         case 'p':
-            square[rank][file] = whitePiece ? Piece.White | Piece.Pawn : Piece.Black | Piece.Pawn;
+            square[rank][file] = whitePiece ? p.White | p.Pawn : p.Black | p.Pawn;
             break;
     }
 
